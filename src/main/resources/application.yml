@@ -1,0 +1,18 @@
+web.upload-path: /usr/local/OTA
+#web.upload-path: D:/OTA
+
+spring:
+  application:
+    name: chicken-api
+  profiles:
+    active: dev
+  servlet:
+    multipart:
+      max-file-size: 2Mb
+
+
+# logstash 通讯地址及端口
+logging:
+  config: classpath:logback/logback-dev.xml
+  level:
+    root: info
