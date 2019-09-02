@@ -34,8 +34,10 @@ spring:
           max-pool-prepared-statement-per-connection-size: 20
     redis:
       database: 0
-      host: 127.0.0.1
-      port: 1234
+#      host: 127.0.0.1
+      host: r-2zepgax1uqc9isfhsupd.redis.rds.aliyuncs.com
+#      port: 1234
+      port: 6380
       pool:
         # 连接池最大连接数（使用负值表示没有限制）
         max-active: 500
@@ -49,7 +51,7 @@ spring:
       #从连接池获取连接时是否检验链接有效性
       testOnBorrow: true
       expiration: 600
-      password: '11111'
+      password: 'xiaoji123!@#QWE'
 
 mybatis:
   mapper-locations: classpath:mapping/*.xml
