@@ -47,14 +47,14 @@ spring:
         max-wait: 10000
         # 连接池中的最小空闲连接
         min-idle: 0
-      timeout: 200
+      timeout: 600
       #从连接池获取连接时是否检验链接有效性
       testOnBorrow: true
       expiration: 600
       password: 'xiaoji123!@#QWE'
 
 mybatis:
-  mapper-locations: classpath:mapping/*.xml
+  mapper-locations: classpath:mappers/*.xml
   type-aliases-package: com.chickenken.api.model
   configuration:
     call-setters-on-nulls: true

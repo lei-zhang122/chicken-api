@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.chicken.api.dao.AccountUserDao" >
+  <resultMap id="BaseResultMap" type="com.chicken.api.model.AccountUser" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="user_id" property="userId" jdbcType="INTEGER" />
+    <result column="attent_count" property="attentCount" jdbcType="DOUBLE" />
+    <result column="consume_count" property="consumeCount" jdbcType="DOUBLE" />
+    <result column="balance" property="balance" jdbcType="DOUBLE" />
+    <result column="status" property="status" jdbcType="CHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from t_account_user
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.chicken.api.model.AccountUser" >
+    insert into t_account_user (id, user_id, attent_count, 
+      consume_count, balance, status, 
+      create_time)
+    values (#{id,jdbcType=INTEGER}, #{userId,jdbcType=INTEGER}, #{attentCount,jdbcType=DOUBLE}, 
+      #{consumeCount,jdbcType=DOUBLE}, #{balance,jdbcType=DOUBLE}, #{status,jdbcType=CHAR}, 
+      #{createTime,jdbcType=TIMESTAMP})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="com.chicken.api.model.AccountUser" >
+    update t_account_user
+    set user_id = #{userId,jdbcType=INTEGER},
+      attent_count = #{attentCount,jdbcType=DOUBLE},
+      consume_count = #{consumeCount,jdbcType=DOUBLE},
+      balance = #{balance,jdbcType=DOUBLE},
+      status = #{status,jdbcType=CHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select id, user_id, attent_count, consume_count, balance, status, create_time
+    from t_account_user
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap" >
+    select id, user_id, attent_count, consume_count, balance, status, create_time
+    from t_account_user where status=1
+  </select>
+</mapper>

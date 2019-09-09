@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.chicken.api.dao.DictionaryDao" >
+  <resultMap id="BaseResultMap" type="com.chicken.api.model.Dictionary" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="dict_type" property="dictType" jdbcType="VARCHAR" />
+    <result column="dict_name" property="dictName" jdbcType="VARCHAR" />
+    <result column="dict_content" property="dictContent" jdbcType="VARCHAR" />
+    <result column="dict_order" property="dictOrder" jdbcType="INTEGER" />
+    <result column="dict_detail" property="dictDetail" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="CHAR" />
+    <result column="create_user" property="createUser" jdbcType="INTEGER" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="edit_time" property="editTime" jdbcType="TIMESTAMP" />
+    <result column="different_flag" property="differentFlag" jdbcType="CHAR" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from t_dictionary
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.chicken.api.model.Dictionary" >
+    insert into t_dictionary (id, dict_type, dict_name, 
+      dict_content, dict_order, dict_detail, 
+      status, create_user, create_time, 
+      edit_time, different_flag)
+    values (#{id,jdbcType=INTEGER}, #{dictType,jdbcType=VARCHAR}, #{dictName,jdbcType=VARCHAR}, 
+      #{dictContent,jdbcType=VARCHAR}, #{dictOrder,jdbcType=INTEGER}, #{dictDetail,jdbcType=VARCHAR}, 
+      #{status,jdbcType=CHAR}, #{createUser,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, 
+      #{editTime,jdbcType=TIMESTAMP}, #{differentFlag,jdbcType=CHAR})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="com.chicken.api.model.Dictionary" >
+    update t_dictionary
+    set dict_type = #{dictType,jdbcType=VARCHAR},
+      dict_name = #{dictName,jdbcType=VARCHAR},
+      dict_content = #{dictContent,jdbcType=VARCHAR},
+      dict_order = #{dictOrder,jdbcType=INTEGER},
+      dict_detail = #{dictDetail,jdbcType=VARCHAR},
+      status = #{status,jdbcType=CHAR},
+      create_user = #{createUser,jdbcType=INTEGER},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      edit_time = #{editTime,jdbcType=TIMESTAMP},
+      different_flag = #{differentFlag,jdbcType=CHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select id, dict_type, dict_name, dict_content, dict_order, dict_detail, status, create_user, 
+    create_time, edit_time, different_flag
+    from t_dictionary
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap" >
+    select id, dict_type, dict_name, dict_content, dict_order, dict_detail, status, create_user, 
+    create_time, edit_time, different_flag
+    from t_dictionary
+  </select>
+  <select id="selectByDictionary" resultMap="BaseResultMap" parameterType="com.chicken.api.model.Dictionary">
+    select id, dict_type, dict_name, dict_content, dict_order, dict_detail, status, create_user,
+    create_time, edit_time, different_flag
+    from t_dictionary where 1=1
+    <if test="dictType != null and dictType !=''" >
+      AND dict_type = #{dictType}
+    </if>
+    <if test="status != null" >
+      AND status = #{status}
+    </if>
+    ORDER BY status DESC,id DESC
+  </select>
+</mapper>

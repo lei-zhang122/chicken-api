@@ -39,7 +39,7 @@ public class CallResult<T> implements Serializable{
 		this.message = message;
 		this.result = result;
 	}
-	
+
 	public static <T>CallResult<T> success() {
 		return new CallResult<T>(CodeEnum.DEFAULT_SUCCESS.getCode(), CodeEnum.DEFAULT_SUCCESS.getMsg(), null);
 	}
@@ -47,7 +47,7 @@ public class CallResult<T> implements Serializable{
 	public static <T>CallResult<T> success(T result) {
 		return new CallResult<T>(CodeEnum.DEFAULT_SUCCESS.getCode(), CodeEnum.DEFAULT_SUCCESS.getMsg(), result);
 	}
-	
+
 	public static <T>CallResult<T> fail() {
 		return new CallResult<T>(CodeEnum.DEFAULT_SYS_ERROR.getCode(), CodeEnum.DEFAULT_SYS_ERROR.getMsg(), null);
 	}

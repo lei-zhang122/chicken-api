@@ -1,0 +1,38 @@
+package com.chicken.api.vo;
+
+/**
+ * @author zhanglei
+ * @date 2019-09-07 10:32
+ */
+public class HitChickenRequest {
+
+    private String userId;
+
+    private String score;
+
+    private String hitCreateTime;
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    public String getScore() {
+        return score;
+    }
+
+    public void setScore(String score) {
+        this.score = score;
+    }
+
+    public String getHitCreateTime() {
+        return hitCreateTime;
+    }
+
+    public void setHitCreateTime(String hitCreateTime) {
+        this.hitCreateTime = hitCreateTime;
+    }
+}

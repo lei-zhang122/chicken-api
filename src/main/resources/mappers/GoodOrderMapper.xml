@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.chicken.api.dao.GoodOrderDao" >
+  <resultMap id="BaseResultMap" type="com.chicken.api.model.GoodOrder" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="good_id" property="goodId" jdbcType="INTEGER" />
+    <result column="user_id" property="userId" jdbcType="INTEGER" />
+    <result column="exchange_time" property="exchangeTime" jdbcType="TIMESTAMP" />
+    <result column="exchange_status" property="exchangeStatus" jdbcType="CHAR" />
+    <result column="express_num" property="expressNum" jdbcType="VARCHAR" />
+    <result column="order_num" property="orderNum" jdbcType="VARCHAR" />
+    <result column="express_name" property="expressName" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="CHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="modify_user" property="modifyUser" jdbcType="INTEGER" />
+    <result column="modify_time" property="modifyTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from t_good_order
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.chicken.api.model.GoodOrder" >
+    insert into t_good_order (id, good_id, user_id, 
+      exchange_time, exchange_status, order_num, 
+      express_name, status, create_time, 
+      modify_user, modify_time,express_num)
+    values (#{id,jdbcType=INTEGER}, #{goodId,jdbcType=INTEGER}, #{userId,jdbcType=INTEGER}, 
+      #{exchangeTime,jdbcType=TIMESTAMP}, #{exchangeStatus,jdbcType=CHAR}, #{orderNum,jdbcType=VARCHAR}, 
+      #{expressName,jdbcType=VARCHAR}, #{status,jdbcType=CHAR}, #{createTime,jdbcType=TIMESTAMP}, 
+      #{modifyUser,jdbcType=INTEGER}, #{modifyTime,jdbcType=TIMESTAMP}, #{expressNum,jdbcType=VARCHAR})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="com.chicken.api.model.GoodOrder" >
+    update t_good_order
+    set good_id = #{goodId,jdbcType=INTEGER},
+      user_id = #{userId,jdbcType=INTEGER},
+      exchange_time = #{exchangeTime,jdbcType=TIMESTAMP},
+      exchange_status = #{exchangeStatus,jdbcType=CHAR},
+      order_num = #{orderNum,jdbcType=VARCHAR},
+      express_name = #{expressName,jdbcType=VARCHAR},
+      status = #{status,jdbcType=CHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      modify_user = #{modifyUser,jdbcType=INTEGER},
+      modify_time = #{modifyTime,jdbcType=TIMESTAMP},
+      express_num = #{expressNum,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select id, good_id, user_id, exchange_time, exchange_status, order_num, express_name, 
+    status, create_time, modify_user, modify_time,express_num
+    from t_good_order
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap" >
+    select id, good_id, user_id, exchange_time, exchange_status, order_num, express_name, 
+    status, create_time, modify_user, modify_time,express_num
+    from t_good_order
+  </select>
+</mapper>

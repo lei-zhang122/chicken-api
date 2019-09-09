@@ -243,4 +243,20 @@ public class DateUtil {
         return  null;
     }
 
+
+    /**
+     * 获得指定日期的 yyyy-MM-dd
+     * @param dateFormat
+     * @return
+     */
+    public static String getSpecifiedDay(String dateFormat,Integer i){
+        Calendar c = Calendar.getInstance();
+        c.setTime(new Date());
+        int day=c.get(Calendar.DATE);
+        c.set(Calendar.DATE,day-i);
+
+        String dayBefore=new SimpleDateFormat(dateFormat).format(c.getTime());
+        return dayBefore;
+    }
+
 }
