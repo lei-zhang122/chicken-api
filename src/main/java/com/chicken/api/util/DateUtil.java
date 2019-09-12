@@ -109,6 +109,22 @@ public class DateUtil {
     }
 
     /**
+     * 获得当前系统时间，格式为yyyy-MM-dd HH:mm:ss
+     *
+     * @return 格式化后的时间
+     */
+    public static String currentYYYYMMDDHHmmssWithSymbol(String date) {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date d = null;
+        try {
+            d = simpleDateFormat.parse(date);
+        }catch (Exception e){
+            return null;
+        }
+        return getStrByDate(d, "yyyy-MM-dd HH:mm:ss");
+    }
+
+    /**
      * 获得指定日期的前一天 yyyy-MM-dd
      * @param date
      * @return

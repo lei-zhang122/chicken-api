@@ -45,8 +45,15 @@ public class SignedController {
     @ResponseBody
     public Object singed(@RequestBody SignedRequest request) {
 
-        if (StringUtils.isBlank(request.getUserId())) {
+        if (StringUtils.isBlank(request.getOpenid())) {
             return CallResult.fail(CodeEnum.LACK_PARAM.getCode(), CodeEnum.LACK_PARAM.getMsg());
+        }
+
+        Object userId = redisService.get(ContantUtil.OPEN_ID.concat(request.getOpenid()));
+        if (null == userId) {
+            return CallResult.fail(CodeEnum.NO_FIND_USER.getCode(), CodeEnum.NO_FIND_USER.getMsg());
+        } else {
+            request.setUserId(userId.toString());
         }
 
         //当期那时间
@@ -67,7 +74,7 @@ public class SignedController {
             //获取第一天的分值，打卡
             Object oneday = redisService.get("d:oneday");
             insertCache(now, request.getUserId(), oneday.toString());
-            insertDetail(oneday.toString(), request.getUserId());
+            insertDetail(oneday.toString(), request.getUserId(),request.getOpenid());
             return returnResult(oneday.toString());
         }
 
@@ -77,19 +84,19 @@ public class SignedController {
             //获取第二天的积分
             Object twoDay = redisService.get("d:twoday");
             insertCache(now, request.getUserId(), twoDay.toString());
-            insertDetail(twoDay.toString(), request.getUserId());
+            insertDetail(twoDay.toString(), request.getUserId(),request.getOpenid());
             return returnResult(twoDay.toString());
         } else if (total.equals("2")) {
             //获取第三天的积分
             Object threeday = redisService.get("d:threeday");
             insertCache(now, request.getUserId(), threeday.toString());
-            insertDetail(threeday.toString(), request.getUserId());
+            insertDetail(threeday.toString(), request.getUserId(),request.getOpenid());
             return returnResult(threeday.toString());
         } else {
             //获取第三天的积分
             Object fourday = redisService.get("d:fourday");
             insertCache(now, request.getUserId(), fourday.toString());
-            insertDetail(fourday.toString(), request.getUserId());
+            insertDetail(fourday.toString(), request.getUserId(),request.getOpenid());
             return returnResult(fourday.toString());
         }
     }
@@ -107,15 +114,23 @@ public class SignedController {
         redisService.increment(ContantUtil.TOTAL_KEY.concat(userId), 1);
     }
 
-    @Async
-    public void insertDetail(String score, String userId) {
+    public void insertDetail(String score, String userId,String openid) {
         //查询用户账户信息
         AccountUser accountUser = this.accountUserService.selectByPrimaryKey(Integer.valueOf(userId));
-        if(null != accountUser) {
+        if (null != accountUser) {
             accountUser.setBalance(accountUser.getBalance() + Double.valueOf(score));
             accountUser.setAttentCount(accountUser.getAttentCount() + Double.valueOf(score));
             accountUserService.updateByPrimaryKey(accountUser);
             logger.info("用户打卡，用户id{}，用户打卡得分{}", userId, score);
+
+            //修改排行榜分值
+            redisService.incrScore(ContantUtil.USER_RANKING_LIST, accountUser.getUserId().toString(), Double.valueOf(score));
+
+            //修改好友排行榜分值
+            Object myFriend = redisService.get(ContantUtil.USER_OWNER_SET.concat(openid));
+            if(null != myFriend){
+                redisService.incrScore(myFriend.toString(),accountUser.getUserId().toString(),Double.valueOf(score));
+            }
         }
 
         //插入到表

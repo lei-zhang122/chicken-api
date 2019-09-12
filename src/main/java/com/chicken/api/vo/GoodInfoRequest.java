@@ -12,6 +12,8 @@ public class GoodInfoRequest {
 
     private String score;
 
+    private String openid;
+
     public String getUserId() {
         return userId;
     }
@@ -34,5 +36,13 @@ public class GoodInfoRequest {
 
     public void setScore(String score) {
         this.score = score;
+    }
+
+    public String getOpenid() {
+        return openid;
+    }
+
+    public void setOpenid(String openid) {
+        this.openid = openid;
     }
 }

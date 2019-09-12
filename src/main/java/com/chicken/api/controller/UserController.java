@@ -3,12 +3,15 @@ package com.chicken.api.controller;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.chicken.api.model.GoodOrder;
+import com.chicken.api.service.GoodOrderService;
 import com.chicken.api.service.RedisService;
 import com.chicken.api.util.CallResult;
 import com.chicken.api.util.CodeEnum;
 import com.chicken.api.util.ContantUtil;
 import com.chicken.api.util.DateUtil;
 import com.chicken.api.vo.UserRequest;
+import com.github.pagehelper.PageInfo;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -31,6 +35,9 @@ public class UserController {
     @Autowired
     RedisService redisService;
 
+    @Autowired
+    GoodOrderService goodOrderService;
+
     /**
      * 获取大力丸排行榜
      *
@@ -40,7 +47,7 @@ public class UserController {
     @ResponseBody
     public Object integralTopTen() {
 
-        Set<Object> userList = redisService.revRange(ContantUtil.USER_LIST, 0, 9);
+        Set<Object> userList = redisService.revRange(ContantUtil.USER_RANKING_LIST, 0, 9);
         Iterator<Object> it = userList.iterator();
         JSONArray jsonArray = new JSONArray();
         while (it.hasNext()) {
@@ -50,7 +57,7 @@ public class UserController {
             if (null != userInfo) {
                 JSONObject json = JSON.parseObject(userInfo.toString());
                 jsonObject.put("nickName", json.getString("nickName"));
-                jsonObject.put("score", redisService.score(ContantUtil.USER_LIST, str));
+                jsonObject.put("score", redisService.score(ContantUtil.USER_RANKING_LIST, str));
                 jsonArray.add(jsonObject);
             }
         }
@@ -68,8 +75,15 @@ public class UserController {
     @ResponseBody
     public Object integralCount(@RequestBody UserRequest request) {
 
-        if (StringUtils.isBlank(request.getUserId())) {
+        if (StringUtils.isBlank(request.getOpenid())) {
             return CallResult.fail(CodeEnum.LACK_PARAM.getCode(), CodeEnum.LACK_PARAM.getMsg());
+        }
+
+        Object userId = redisService.get(ContantUtil.OPEN_ID.concat(request.getOpenid()));
+        if (null == userId) {
+            return CallResult.fail(CodeEnum.NO_FIND_USER.getCode(), CodeEnum.NO_FIND_USER.getMsg());
+        } else {
+            request.setUserId(userId.toString());
         }
 
         //当期那时间
@@ -87,5 +101,107 @@ public class UserController {
         return CallResult.success(jsonObject);
     }
 
+
+    /**
+     * 获取商品兑换记录
+     *
+     * @return
+     */
+    @RequestMapping(value = "/goodExchangeList", method = RequestMethod.POST)
+    @ResponseBody
+    public Object goodExchangeList(@RequestBody UserRequest request) {
+
+        if (StringUtils.isBlank(request.getOpenid())) {
+            return CallResult.fail(CodeEnum.LACK_PARAM.getCode(), CodeEnum.LACK_PARAM.getMsg());
+        }
+
+        Object userId = redisService.get(ContantUtil.OPEN_ID.concat(request.getOpenid()));
+        if (null == userId) {
+            return CallResult.fail(CodeEnum.NO_FIND_USER.getCode(), CodeEnum.NO_FIND_USER.getMsg());
+        } else {
+            request.setUserId(userId.toString());
+        }
+
+        Integer pageNum = ContantUtil.DEFAULT_PAGE_NUM;
+        if (null != request.getCurrentPage() && !"0".equals(request.getCurrentPage())) {
+            pageNum = Integer.valueOf(request.getCurrentPage());
+        }
+
+        Integer pageSize = ContantUtil.DEFAULT_PAGE_SIZE;
+        if (null != request.getPageSize() && !"0".equals(request.getPageSize())) {
+            pageSize = Integer.valueOf(request.getPageSize());
+        }
+
+        //查询兑换信息
+        GoodOrder goodOrder = new GoodOrder();
+        goodOrder.setUserId(Integer.valueOf(request.getUserId()));
+        goodOrder.setStatus("1");
+        PageInfo<Map> result = this.goodOrderService.selectByGoodOrder(goodOrder, pageNum, pageSize);
+        JSONObject returnJson = new JSONObject();
+        returnJson.put("countPage", result.getPages());
+        returnJson.put("currentPage", result.getPageNum());
+        if (result.getList().size() > 0) {
+            JSONArray jsonArray = new JSONArray();
+            for (Map m : result.getList()) {
+                JSONObject object = new JSONObject();
+                String date = m.get("exchange_time").toString();
+                object.put("exchangeTime", DateUtil.currentYYYYMMDDHHmmssWithSymbol(date));
+                object.put("goodName", m.get("good_name"));
+                object.put("goodImg", m.get("good_img"));
+                object.put("goodType", m.get("good_type"));
+                object.put("orderNum", m.get("order_num"));
+                object.put("expressName", m.get("express_name"));
+                object.put("expressNum", m.get("express_num"));
+                String status = m.get("exchange_status").toString();
+                if (status.equals("1")) {
+                    object.put("exchangeStatus", "已下单");
+                } else if (status.equals("2")) {
+                    object.put("exchangeStatus", "已发货");
+                } else if (status.equals("3")) {
+                    object.put("exchangeStatus", "已完成");
+                }
+                jsonArray.add(object);
+            }
+
+            returnJson.put("data", jsonArray.toArray());
+        } else {
+            returnJson.put("data", null);
+        }
+
+        return CallResult.success(returnJson);
+    }
+
+
+
+    /**
+     * 获取好友排行榜
+     *
+     * @return
+     */
+    @RequestMapping(value = "/integralByFriend", method = RequestMethod.POST)
+    @ResponseBody
+    public Object integralByFriend(@RequestBody UserRequest request) {
+
+        if(StringUtils.isBlank(request.getOpenid())){
+            return CallResult.fail(CodeEnum.LACK_PARAM.getCode(), CodeEnum.LACK_PARAM.getMsg());
+        }
+
+        Set<Object> userList = redisService.revRange(ContantUtil.FRIEND_RANKING_LIST.concat(request.getOpenid()), 0, 1000);
+        Iterator<Object> it = userList.iterator();
+        JSONArray jsonArray = new JSONArray();
+        while (it.hasNext()) {
+            String str = it.next().toString();
+            JSONObject jsonObject = new JSONObject();
+            Object userInfo = redisService.get(ContantUtil.USER_INFO.concat(str));
+            if (null != userInfo) {
+                JSONObject json = JSON.parseObject(userInfo.toString());
+                jsonObject.put("nickName", json.getString("nickName"));
+                jsonObject.put("score", redisService.score(ContantUtil.USER_RANKING_LIST, str));
+                jsonArray.add(jsonObject);
+            }
+        }
+
+        return CallResult.success(jsonArray.toArray());
+    }
 
 }

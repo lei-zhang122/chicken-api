@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.chicken.dao.UserInviteDao" >
+  <resultMap id="BaseResultMap" type="com.chicken.api.model.UserInvite" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="user_id" property="userId" jdbcType="INTEGER" />
+    <result column="invite_user_id" property="inviteUserId" jdbcType="INTEGER" />
+    <result column="invite_status" property="inviteStatus" jdbcType="CHAR" />
+    <result column="invite_time" property="inviteTime" jdbcType="TIMESTAMP" />
+    <result column="status" property="status" jdbcType="CHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from t_user_invite
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.chicken.api.model.UserInvite" >
+    insert into t_user_invite (id, user_id, invite_user_id, 
+      invite_status, invite_time, status, 
+      create_time)
+    values (#{id,jdbcType=INTEGER}, #{userId,jdbcType=INTEGER}, #{inviteUserId,jdbcType=INTEGER}, 
+      #{inviteStatus,jdbcType=CHAR}, #{inviteTime,jdbcType=TIMESTAMP}, #{status,jdbcType=CHAR}, 
+      #{createTime,jdbcType=TIMESTAMP})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="com.chicken.api.model.UserInvite" >
+    update t_user_invite
+    set user_id = #{userId,jdbcType=INTEGER},
+      invite_user_id = #{inviteUserId,jdbcType=INTEGER},
+      invite_status = #{inviteStatus,jdbcType=CHAR},
+      invite_time = #{inviteTime,jdbcType=TIMESTAMP},
+      status = #{status,jdbcType=CHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select id, user_id, invite_user_id, invite_status, invite_time, status, create_time
+    from t_user_invite
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap" >
+    select id, user_id, invite_user_id, invite_status, invite_time, status, create_time
+    from t_user_invite
+  </select>
+  <select id="selectByUserInvite" resultType="java.util.HashMap" parameterType="com.chicken.api.model.UserInvite" >
+    select t.id, t.user_id, t.invite_user_id, t.invite_status, t.invite_time,
+    a.nick_name,a.openid,b.nick_name as invite_nick_name,b.openid as invite_openid
+    from t_user_invite t
+    left join t_wechat_user a on a.id = t.user_id
+    left join t_wechat_user b on b.id = t.invite_user_id
+    WHERE 1=1
+    <if test="userId != null and userId !=''" >
+      AND t.user_id = #{userId}
+    </if>
+    <if test="inviteUserId != null and inviteUserId !=''" >
+      AND t.invite_user_id = #{inviteUserId}
+    </if>
+    <if test="status != null" >
+      AND t.status = #{status}
+    </if>
+    ORDER BY t.status DESC,t.id DESC
+  </select>
+</mapper>

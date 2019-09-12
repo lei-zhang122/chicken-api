@@ -44,8 +44,22 @@ public class HItChickenController {
     @ResponseBody
     public Object hitChicken(@RequestBody HitChickenRequest request) {
 
-        if (StringUtils.isBlank(request.getUserId()) || StringUtils.isBlank(request.getScore())) {
+        if (StringUtils.isBlank(request.getOpenid()) || StringUtils.isBlank(request.getScore()) || StringUtils.isBlank(request.getHitOpenid())) {
             return CallResult.fail(CodeEnum.LACK_PARAM.getCode(), CodeEnum.LACK_PARAM.getMsg());
+        }
+
+        Object userId = redisService.get(ContantUtil.OPEN_ID.concat(request.getOpenid()));
+        if (null == userId) {
+            return CallResult.fail(CodeEnum.NO_FIND_USER.getCode(), CodeEnum.NO_FIND_USER.getMsg());
+        } else {
+            request.setUserId(userId.toString());
+        }
+
+        Object hitUserId = redisService.get(ContantUtil.OPEN_ID.concat(request.getHitOpenid()));
+        if (null == hitUserId) {
+            return CallResult.fail(CodeEnum.NO_FIND_USER.getCode(), CodeEnum.NO_FIND_USER.getMsg());
+        } else {
+            request.setHitUserId(hitUserId.toString());
         }
 
         //每天最大分值
@@ -75,13 +89,13 @@ public class HItChickenController {
             redisService.set(ContantUtil.GAIN_SCORE.concat(now).concat(":").concat(request.getUserId()), Double.valueOf(request.getScore()) + gainScore);
 
             //插入分值
-            insetDetail(Double.valueOf(request.getScore()), request.getUserId());
+            insetDetail(Double.valueOf(request.getScore()), request.getUserId(),request.getOpenid(),request.getHitUserId());
         } else {
             //更新缓存
             redisService.set(ContantUtil.GAIN_SCORE.concat(now).concat(":").concat(request.getUserId()), gainScore + diffValue);
 
             //插入分值
-            insetDetail(diffValue, request.getUserId());
+            insetDetail(diffValue, request.getUserId(),request.getOpenid(),request.getHitUserId());
         }
 
 
@@ -90,8 +104,7 @@ public class HItChickenController {
         return returnResult(gainScoreObj.toString());
     }
 
-    @Async
-    public void insetDetail(Double score, String userId) {
+    public void insetDetail(Double score, String userId,String openid,String hitUserId) {
 
         //更新账户信息
         AccountUser accountUser = this.accountUserService.selectByPrimaryKey(Integer.valueOf(userId));
@@ -100,8 +113,17 @@ public class HItChickenController {
         accountUserService.updateByPrimaryKey(accountUser);
         logger.info("用户揍小鸡，用户id{}，用户打卡得分{}", userId, score);
 
+        //修改排行榜分值
+        redisService.incrScore(ContantUtil.USER_RANKING_LIST,accountUser.getUserId().toString(),score);
+
+        //修改好友排行榜分值
+        Object myFriend = redisService.get(ContantUtil.USER_OWNER_SET.concat(openid));
+        if(null != myFriend){
+            redisService.incrScore(myFriend.toString(),accountUser.getUserId().toString(),score);
+        }
+
         //插入记录
-        insertHitDetail(Integer.valueOf(userId), score, accountUser.getAttentCount());
+        insertHitDetail(Integer.valueOf(userId), score, accountUser.getAttentCount(),Integer.valueOf(hitUserId));
     }
 
 
@@ -111,7 +133,7 @@ public class HItChickenController {
      * @param score
      * @param count
      */
-    public void insertHitDetail(Integer userId, Double score, Double count) {
+    public void insertHitDetail(Integer userId, Double score, Double count,Integer hitUserId) {
         AccountHit accountHit = new AccountHit();
         accountHit.setCreateTime(new Date());
         accountHit.setDetailFlag(2);
@@ -120,7 +142,9 @@ public class HItChickenController {
         accountHit.setUserId(userId);
         accountHit.setScore(score);
         accountHit.setSignedTime(new Date());
+        accountHit.setStatus("1");
         accountHit.setScoreCount(count);
+        accountHit.setHitUserId(hitUserId);
         accountHitService.insert(accountHit);
         logger.info("用户揍小鸡，用户id{},打卡时间{}", userId, DateUtil.getNow());
     }

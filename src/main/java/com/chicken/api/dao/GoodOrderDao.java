@@ -4,6 +4,7 @@ import com.chicken.api.model.GoodOrder;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface GoodOrderDao {
@@ -18,4 +19,5 @@ public interface GoodOrderDao {
     int updateByPrimaryKey(GoodOrder record);
 
 
+    List<Map> selectByGoodOrder(GoodOrder goodOrder);
 }

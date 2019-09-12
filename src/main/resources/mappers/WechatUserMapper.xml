@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.chicken.api.dao.WechatUserDao" >
+  <resultMap id="BaseResultMap" type="com.chicken.api.model.WechatUser" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="nick_name" property="nickName" jdbcType="VARCHAR" />
+    <result column="phone" property="phone" jdbcType="VARCHAR" />
+    <result column="avatar" property="avatar" jdbcType="VARCHAR" />
+    <result column="openid" property="openid" jdbcType="VARCHAR" />
+    <result column="unionid" property="unionid" jdbcType="VARCHAR" />
+    <result column="sex" property="sex" jdbcType="CHAR" />
+    <result column="invite_num" property="inviteNum" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="CHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="reg_source" property="regSource" jdbcType="VARCHAR" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from t_wechat_user
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.chicken.api.model.WechatUser" >
+    insert into t_wechat_user (id, nick_name, phone, 
+      avatar, openid, unionid, 
+      sex, invite_num, status, create_time,reg_source
+      )
+    values (#{id,jdbcType=INTEGER}, #{nickName,jdbcType=VARCHAR}, #{phone,jdbcType=VARCHAR}, 
+      #{avatar,jdbcType=VARCHAR}, #{openid,jdbcType=VARCHAR}, #{unionid,jdbcType=VARCHAR}, 
+      #{sex,jdbcType=CHAR}, #{inviteNum,jdbcType=VARCHAR}, #{status,jdbcType=CHAR}, #{createTime,jdbcType=TIMESTAMP}, #{regSource,jdbcType=VARCHAR}
+      )
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="com.chicken.api.model.WechatUser" >
+    update t_wechat_user
+    set nick_name = #{nickName,jdbcType=VARCHAR},
+      phone = #{phone,jdbcType=VARCHAR},
+      avatar = #{avatar,jdbcType=VARCHAR},
+      openid = #{openid,jdbcType=VARCHAR},
+      unionid = #{unionid,jdbcType=VARCHAR},
+      sex = #{sex,jdbcType=CHAR},
+      invite_num = #{inviteNum,jdbcType=VARCHAR},
+      status = #{status,jdbcType=CHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      reg_source = #{regSource,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select id, nick_name, phone, avatar, openid, unionid, sex, invite_num, status, create_time,reg_source
+    from t_wechat_user
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap" >
+    select id, nick_name, phone, avatar, openid, unionid, sex, invite_num, status, create_time,reg_source
+    from t_wechat_user where status=1
+  </select>
+  <select id="selectByOpenId" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select id, nick_name, phone, avatar, openid, unionid, sex, invite_num, status, create_time,reg_source
+    from t_wechat_user
+    where openid = #{openid,jdbcType=VARCHAR}
+  </select>
+  <select id="selectTopFive" resultMap="BaseResultMap" >
+    select id, nick_name, phone, avatar, openid, unionid, sex, invite_num, status, create_time,reg_source
+    from t_wechat_user where status=1 limit 0,5
+  </select>
+</mapper>

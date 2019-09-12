@@ -17,4 +17,5 @@ public interface AccountSignedDao {
 
     int updateByPrimaryKey(AccountSigned record);
 
+    List<AccountSigned> selectByAccountSigned(AccountSigned accountSigned);
 }

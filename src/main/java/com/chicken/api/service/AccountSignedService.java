@@ -2,6 +2,8 @@ package com.chicken.api.service;
 
 import com.chicken.api.dao.AccountSignedDao;
 import com.chicken.api.model.AccountSigned;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -26,6 +28,7 @@ public class AccountSignedService {
     }
 
     @Transactional(rollbackFor = Exception.class)
+    @Async
     public int insert(AccountSigned record) {
         return accountSignedDao.insert(record);
     }
@@ -45,4 +48,11 @@ public class AccountSignedService {
         return accountSignedDao.updateByPrimaryKey(record);
     }
 
+    public PageInfo<AccountSigned> selectByAccountSigned(AccountSigned accountSigned, int pageNum, int pageSize) {
+        //将参数传给这个方法就可以实现物理分页了
+        PageHelper.startPage(pageNum, pageSize);
+        List<AccountSigned> userLists = accountSignedDao.selectByAccountSigned(accountSigned);
+        PageInfo result = new PageInfo(userLists);
+        return result;
+    }
 }

@@ -12,6 +12,12 @@ public class HitChickenRequest {
 
     private String hitCreateTime;
 
+    private String openid;
+
+    private String hitOpenid;
+
+    private String hitUserId;
+
     public String getUserId() {
         return userId;
     }
@@ -34,5 +40,29 @@ public class HitChickenRequest {
 
     public void setHitCreateTime(String hitCreateTime) {
         this.hitCreateTime = hitCreateTime;
+    }
+
+    public String getOpenid() {
+        return openid;
+    }
+
+    public void setOpenid(String openid) {
+        this.openid = openid;
+    }
+
+    public String getHitOpenid() {
+        return hitOpenid;
+    }
+
+    public void setHitOpenid(String hitOpenid) {
+        this.hitOpenid = hitOpenid;
+    }
+
+    public String getHitUserId() {
+        return hitUserId;
+    }
+
+    public void setHitUserId(String hitUserId) {
+        this.hitUserId = hitUserId;
     }
 }

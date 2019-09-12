@@ -23,6 +23,8 @@ public class AccountHit {
 
     private Integer userId;
 
+    private Integer hitUserId;
+
     public Integer getId() {
         return id;
     }
@@ -101,5 +103,13 @@ public class AccountHit {
 
     public void setUserId(Integer userId) {
         this.userId = userId;
+    }
+
+    public Integer getHitUserId() {
+        return hitUserId;
+    }
+
+    public void setHitUserId(Integer hitUserId) {
+        this.hitUserId = hitUserId;
     }
 }

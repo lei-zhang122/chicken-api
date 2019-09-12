@@ -21,7 +21,9 @@ public enum CodeEnum {
 	NO_LOGIN_MESSAGE(1000,"未登录"),
 	LACK_PARAM(1001,"缺少必传参数"),
 	GOOD_NO_EXITS(1002,"商品不存在"),
-	GOOD_NO_THOUGH(1003,"缺少库存");
+	GOOD_NO_THOUGH(1003,"缺少库存"),
+	NO_FIND_USER(1004,"未找到用户"),
+	INTEGRAL_NO_THOUGH(1005,"可用积分小于商品积分");
 
 
 	 private static final Map<Integer, CodeEnum> codeMap = new HashMap<Integer, CodeEnum>((int)(CodeEnum.values().length/0.75)+1);

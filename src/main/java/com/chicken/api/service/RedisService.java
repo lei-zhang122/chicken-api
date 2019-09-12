@@ -84,6 +84,7 @@ public class RedisService {
      * @return
      */
     public Long rank(String key, String value) {
+        logger.info(" sortSet set key{},value{}", key, value);
         return  redisTemplate.opsForZSet().reverseRank(key, value);
     }
 

@@ -12,6 +12,7 @@
     <result column="status" property="status" jdbcType="CHAR" />
     <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
     <result column="user_id" property="userId" jdbcType="INTEGER" />
+    <result column="hit_user_id" property="hitUserId" jdbcType="INTEGER" />
   </resultMap>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
     delete from t_account_hit
@@ -21,11 +22,11 @@
     insert into t_account_hit (id, detail_flag, detail_type, 
       score, score_count, signed_time, 
       remark, status, create_time, 
-      user_id)
+      user_id,hit_user_id)
     values (#{id,jdbcType=INTEGER}, #{detailFlag,jdbcType=INTEGER}, #{detailType,jdbcType=VARCHAR}, 
       #{score,jdbcType=DOUBLE}, #{scoreCount,jdbcType=DOUBLE}, #{signedTime,jdbcType=TIMESTAMP}, 
       #{remark,jdbcType=VARCHAR}, #{status,jdbcType=CHAR}, #{createTime,jdbcType=TIMESTAMP}, 
-      #{userId,jdbcType=INTEGER})
+      #{userId,jdbcType=INTEGER},#{hitUserId,jdbcType=INTEGER})
   </insert>
   <update id="updateByPrimaryKey" parameterType="com.chicken.api.model.AccountHit" >
     update t_account_hit
@@ -37,18 +38,44 @@
       remark = #{remark,jdbcType=VARCHAR},
       status = #{status,jdbcType=CHAR},
       create_time = #{createTime,jdbcType=TIMESTAMP},
-      user_id = #{userId,jdbcType=INTEGER}
+      user_id = #{userId,jdbcType=INTEGER},
+      hit_user_id = #{hitUserId,jdbcType=INTEGER}
     where id = #{id,jdbcType=INTEGER}
   </update>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
     select id, detail_flag, detail_type, score, score_count, signed_time, remark, status, 
-    create_time, user_id
+    create_time, user_id,hit_user_id
     from t_account_hit
     where id = #{id,jdbcType=INTEGER}
   </select>
   <select id="selectAll" resultMap="BaseResultMap" >
     select id, detail_flag, detail_type, score, score_count, signed_time, remark, status, 
-    create_time, user_id
+    create_time, user_id,hit_user_id
     from t_account_hit
+  </select>
+  <select id="selectByAccountHit" resultMap="BaseResultMap" parameterType="com.chicken.api.model.AccountHit" >
+    select id, detail_flag, detail_type, score, score_count, signed_time, remark, status,
+    create_time, user_id,hit_user_id
+    from t_account_hit
+    WHERE 1=1
+    <if test="userId != null and userId !=''" >
+      AND user_id = #{userId}
+    </if>
+    <if test="hitUserId != null and hitUserId !=''" >
+      AND hit_user_id = #{hitUserId}
+    </if>
+  </select>
+  <select id="selectHitUserName" resultType="java.util.HashMap" parameterType="com.chicken.api.model.AccountHit" >
+    select u.nick_name,u.avatar,z.nick_name as hit_nick_name,z.avatar as hit_avatar
+    from t_account_hit t
+    left join t_wechat_user u on u.id = t.user_id
+    left join t_wechat_user z on z.id = t.hit_user_id
+    WHERE 1=1
+    <if test="userId != null and userId !=''" >
+      AND user_id = #{userId}
+    </if>
+    <if test="hitUserId != null and hitUserId !=''" >
+      AND hit_user_id = #{hitUserId}
+    </if>
   </select>
 </mapper>

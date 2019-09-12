@@ -89,13 +89,14 @@ public class GoodInfoController {
         JSONObject goodInfoJson = new JSONObject();
         if (null != goodInfo) {
             goodInfoJson.put("id", goodInfo.getId());
+            goodInfoJson.put("goodName", goodInfo.getGoodName());
             goodInfoJson.put("goodDownVirtual", goodInfo.getGoodDownVirtual());
             goodInfoJson.put("goodDetail", goodInfo.getGoodDetail());
-            goodInfoJson.put("goodName", goodInfo.getGoodName());
             goodInfoJson.put("goodImg", goodInfo.getGoodImg());
             goodInfoJson.put("goodType", goodInfo.getGoodType());
             goodInfoJson.put("goodNum", goodInfo.getGoodNum());
             goodInfoJson.put("goodVirtual", goodInfo.getGoodVirtual());
+            goodInfoJson.put("goodPrice", goodInfo.getGoodPrice());
         }
 
         return CallResult.success(goodInfoJson);
@@ -112,14 +113,27 @@ public class GoodInfoController {
     @ResponseBody
     public Object goodExchangeById(@RequestBody GoodInfoRequest goodInfoRequest) {
 
-        if (StringUtils.isBlank(goodInfoRequest.getGoodId()) || StringUtils.isBlank(goodInfoRequest.getUserId()) || StringUtils.isBlank(goodInfoRequest.getScore())) {
+        if (StringUtils.isBlank(goodInfoRequest.getGoodId()) || StringUtils.isBlank(goodInfoRequest.getOpenid())
+                || StringUtils.isBlank(goodInfoRequest.getScore())) {
             return CallResult.fail(CodeEnum.LACK_PARAM.getCode(), CodeEnum.LACK_PARAM.getMsg());
+        }
+
+        Object userId = redisService.get(ContantUtil.OPEN_ID.concat(goodInfoRequest.getOpenid()));
+        if (null == userId) {
+            return CallResult.fail(CodeEnum.NO_FIND_USER.getCode(), CodeEnum.NO_FIND_USER.getMsg());
+        } else {
+            goodInfoRequest.setUserId(userId.toString());
         }
 
         //缓存获得产品数量
         Object goodNum = redisService.get("good:id:".concat(goodInfoRequest.getGoodId()));
         if (null == goodNum) {
             return CallResult.fail(CodeEnum.GOOD_NO_EXITS.getCode(), CodeEnum.GOOD_NO_EXITS.getMsg());
+        }
+
+        //判断用户积分是否大于商品积分
+        if (!userIntegral(goodInfoRequest.getUserId(), Double.valueOf(goodInfoRequest.getScore()))) {
+            return CallResult.fail(CodeEnum.INTEGRAL_NO_THOUGH.getCode(), CodeEnum.INTEGRAL_NO_THOUGH.getMsg());
         }
 
         if (Integer.valueOf(goodNum.toString()) > 0) {
@@ -132,7 +146,7 @@ public class GoodInfoController {
                 return CallResult.fail(CodeEnum.GOOD_NO_THOUGH.getCode(), CodeEnum.GOOD_NO_THOUGH.getMsg());
             }
 
-            insertGoodOrder(Double.valueOf(goodInfoRequest.getScore()), Integer.valueOf(goodInfoRequest.getGoodId()), Integer.valueOf(goodInfoRequest.getUserId()));
+            insertGoodOrder(Double.valueOf(goodInfoRequest.getScore()), Integer.valueOf(goodInfoRequest.getGoodId()), Integer.valueOf(goodInfoRequest.getUserId()), goodInfoRequest.getOpenid());
         }
 
         return CallResult.success();
@@ -163,8 +177,24 @@ public class GoodInfoController {
         return true;
     }
 
-    @Async
-    public void insertGoodOrder(Double score, Integer goodId, Integer userId) {
+    /**
+     * 判断自己的积分是否大于兑换积分
+     *
+     * @param userId
+     * @param score
+     * @return
+     */
+    private boolean userIntegral(String userId, Double score) {
+
+        Double myscore = redisService.score(ContantUtil.USER_RANKING_LIST, userId);
+        if (myscore >= score) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public void insertGoodOrder(Double score, Integer goodId, Integer userId, String openid) {
 
         //减少积分
         AccountUser accountUser = this.accountUserService.selectByPrimaryKey(userId);
@@ -174,7 +204,13 @@ public class GoodInfoController {
             accountUserService.updateByPrimaryKey(accountUser);
             logger.info("商品兑换，用户id{}，商品id:{},消耗积分{}", userId, goodId, score);
             //修改排行榜分值
-            redisService.incrScore(ContantUtil.USER_LIST,accountUser.getUserId().toString(),-score);
+            redisService.incrScore(ContantUtil.USER_RANKING_LIST, accountUser.getUserId().toString(), -score);
+
+            //修改好友排行榜分值
+            Object myFriend = redisService.get(ContantUtil.USER_OWNER_SET.concat(openid));
+            if (null != myFriend) {
+                redisService.incrScore(myFriend.toString(), accountUser.getUserId().toString(), -score);
+            }
         }
 
         //记录订单
@@ -198,30 +234,30 @@ public class GoodInfoController {
         signed.setDetailType("商品兑换");
         signed.setScoreCount(accountUser.getBalance());
         signed.setStatus("1");
-        signed.setScore(score);
+        signed.setScore(-score);
         signed.setRemark(uuid.toString().replace("-", ""));
         this.accountDetailService.insert(signed);
-        logger.info("商品兑换，用户id{}，商品id:{},消耗积分{},插入到流水表", userId, goodId, score);
+        logger.info("商品兑换，用户id{}，商品id:{},消耗积分{},插入到流水表", userId, goodId, -score);
     }
 
     @RequestMapping(value = "/test", method = RequestMethod.GET)
     @ResponseBody
     public Object test() {
-        /*Set<Object> a = redisService.revRange(ContantUtil.USER_LIST, 0, -1);
+
+        redisService.setSortSet(ContantUtil.FRIEND_RANKING_LIST.concat("123132"), "1", 73.0);
+        redisService.setSortSet(ContantUtil.FRIEND_RANKING_LIST.concat("123132"), "2", 99.0);
+        redisService.setSortSet(ContantUtil.FRIEND_RANKING_LIST.concat("123132"), "3", 66.0);
+
+        Set<Object> a = redisService.revRange(ContantUtil.FRIEND_RANKING_LIST.concat("123132"), 0, -1);
         Iterator<Object> it = a.iterator();
-        double b = 10.0;
         while (it.hasNext()) {
             String str = it.next().toString();
             System.out.println(str);
-            System.out.println("排名：" + redisService.rank(ContantUtil.USER_LIST, str));
-            System.out.println("分值：" + redisService.score(ContantUtil.USER_LIST, str));
+            System.out.println("排名：" + redisService.rank(ContantUtil.FRIEND_RANKING_LIST.concat("123132"), str));
+            System.out.println("分值：" + redisService.score(ContantUtil.FRIEND_RANKING_LIST.concat("123132"), str));
 
 
-        }*/
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("nickName","hh");
-        jsonObject.put("img","aaaa");
-        redisService.set("user:id:1",jsonObject.toJSONString());
+        }
 
         return "success";
     }

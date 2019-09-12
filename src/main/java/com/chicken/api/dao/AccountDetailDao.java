@@ -17,4 +17,5 @@ public interface AccountDetailDao {
 
     int updateByPrimaryKey(AccountDetail record);
 
+    List<AccountDetail> selectByAccountDetail(AccountDetail accountDetail);
  }

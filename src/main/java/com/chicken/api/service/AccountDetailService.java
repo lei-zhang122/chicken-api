@@ -2,7 +2,10 @@ package com.chicken.api.service;
 
 import com.chicken.api.dao.AccountDetailDao;
 import com.chicken.api.model.AccountDetail;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +27,7 @@ public class AccountDetailService {
     }
 
     @Transactional(rollbackFor = Exception.class)
+    @Async
     public int insert(AccountDetail record) {
         return accountDetailDao.insert(record);
     }
@@ -43,4 +47,11 @@ public class AccountDetailService {
         return accountDetailDao.updateByPrimaryKey(record);
     }
 
+    public PageInfo<AccountDetail> selectByAccountDetail(AccountDetail accountDetail, int pageNum, int pageSize) {
+        //将参数传给这个方法就可以实现物理分页了
+        PageHelper.startPage(pageNum, pageSize);
+        List<AccountDetail> userLists = accountDetailDao.selectByAccountDetail(accountDetail);
+        PageInfo result = new PageInfo(userLists);
+        return result;
+    }
 }

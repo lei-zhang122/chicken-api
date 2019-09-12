@@ -60,3 +60,10 @@ mybatis:
     call-setters-on-nulls: true
 
 
+#pagehelper
+pagehelper:
+  helperDialect: mysql
+  reasonable: true
+  supportMethodsArguments: true
+  params: count=countSql
+  returnPageInfo: check
