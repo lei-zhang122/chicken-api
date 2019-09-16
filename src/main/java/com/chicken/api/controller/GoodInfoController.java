@@ -15,9 +15,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 
 /**
@@ -26,7 +26,7 @@ import java.util.*;
  */
 @RestController
 @RequestMapping("/mp")
-public class GoodInfoController {
+public class GoodInfoController extends BaseController{
 
     private Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -44,6 +44,9 @@ public class GoodInfoController {
 
     @Autowired
     AccountDetailService accountDetailService;
+
+    @Autowired
+    HttpServletRequest request;
 
     /**
      * 获取商品列表
@@ -72,7 +75,7 @@ public class GoodInfoController {
 
 
     /**
-     * 获取商品列表
+     * 获取商品明细
      *
      * @return
      */
@@ -80,6 +83,10 @@ public class GoodInfoController {
     @ResponseBody
     public Object goodDetailById(@RequestBody GoodInfoRequest goodInfoRequest) {
 
+        String sessionId = request.getHeader("sessionId");
+        if (!isLogin(sessionId)) {
+            return CallResult.fail(CodeEnum.LOGIN_OUT_TIME.getCode(), CodeEnum.LOGIN_OUT_TIME.getMsg());
+        }
 
         if (StringUtils.isBlank(goodInfoRequest.getGoodId())) {
             return CallResult.fail(CodeEnum.LACK_PARAM.getCode(), CodeEnum.LACK_PARAM.getMsg());
@@ -112,6 +119,11 @@ public class GoodInfoController {
     @RequestMapping(value = "/goodExchangeById", method = RequestMethod.POST)
     @ResponseBody
     public Object goodExchangeById(@RequestBody GoodInfoRequest goodInfoRequest) {
+
+        String sessionId = request.getHeader("sessionId");
+        if (!isLogin(sessionId)) {
+            return CallResult.fail(CodeEnum.LOGIN_OUT_TIME.getCode(), CodeEnum.LOGIN_OUT_TIME.getMsg());
+        }
 
         if (StringUtils.isBlank(goodInfoRequest.getGoodId()) || StringUtils.isBlank(goodInfoRequest.getOpenid())
                 || StringUtils.isBlank(goodInfoRequest.getScore())) {
@@ -206,6 +218,9 @@ public class GoodInfoController {
             //修改排行榜分值
             redisService.incrScore(ContantUtil.USER_RANKING_LIST, accountUser.getUserId().toString(), -score);
 
+            //修改自己排行榜的分
+            redisService.incrScore(ContantUtil.FRIEND_RANKING_LIST.concat(openid),accountUser.getUserId().toString(),-score);
+
             //修改好友排行榜分值
             Object myFriend = redisService.get(ContantUtil.USER_OWNER_SET.concat(openid));
             if (null != myFriend) {
@@ -244,20 +259,18 @@ public class GoodInfoController {
     @ResponseBody
     public Object test() {
 
-        redisService.setSortSet(ContantUtil.FRIEND_RANKING_LIST.concat("123132"), "1", 73.0);
-        redisService.setSortSet(ContantUtil.FRIEND_RANKING_LIST.concat("123132"), "2", 99.0);
-        redisService.setSortSet(ContantUtil.FRIEND_RANKING_LIST.concat("123132"), "3", 66.0);
 
-        Set<Object> a = redisService.revRange(ContantUtil.FRIEND_RANKING_LIST.concat("123132"), 0, -1);
+        Set<Object> a = redisService.revRange(ContantUtil.USER_RANKING_LIST, 0, 10000);
         Iterator<Object> it = a.iterator();
         while (it.hasNext()) {
             String str = it.next().toString();
             System.out.println(str);
-            System.out.println("排名：" + redisService.rank(ContantUtil.FRIEND_RANKING_LIST.concat("123132"), str));
-            System.out.println("分值：" + redisService.score(ContantUtil.FRIEND_RANKING_LIST.concat("123132"), str));
+            System.out.println("排名：" + redisService.rank(ContantUtil.USER_RANKING_LIST, str));
+            System.out.println("分值：" + redisService.score(ContantUtil.USER_RANKING_LIST, str));
 
 
         }
+        System.out.println("===========================");
 
         return "success";
     }

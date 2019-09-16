@@ -5,7 +5,7 @@
 
     <include resource="org/springframework/boot/logging/logback/defaults.xml" />
     <logger name="org.springframework.web" level="INFO" />
-    <property name="LOG_PATH" value="/Users/zhanglei/Documents/log" />
+    <property name="LOG_PATH" value="/usr/local/chicken/log" />
     <appender name="consoleAppender" class="ch.qos.logback.core.ConsoleAppender">
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <!--格式化输出：%d表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度%msg：日志消息，%n是换行符-->
@@ -16,7 +16,7 @@
     <appender name="FILE"  class="ch.qos.logback.core.rolling.RollingFileAppender">
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <!--日志文件输出的文件名-->
-            <FileNamePattern>${LOG_PATH}/chicken-web.%d{yyyy-MM-dd}.%i.log</FileNamePattern>
+            <FileNamePattern>${LOG_PATH}/chicken-api.%d{yyyy-MM-dd}.%i.log</FileNamePattern>
             <!--日志文件保留天数-->
             <maxHistory>30</maxHistory>
             <!-- 当前版本bug，需要1.1.8才修复 -->
@@ -52,6 +52,6 @@
         </root>
     </springProfile>
 
-    <logger name="com.chicken.dao" level="DEBUG"></logger>
+    <logger name="com.chicken.api.dao" level="DEBUG"></logger>
 
 </configuration>

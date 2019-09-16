@@ -8,6 +8,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.UUID;
 
 public class DateUtil {
 
@@ -273,6 +274,11 @@ public class DateUtil {
 
         String dayBefore=new SimpleDateFormat(dateFormat).format(c.getTime());
         return dayBefore;
+    }
+
+    public static String getUUID(){
+        UUID uuid = UUID.randomUUID();
+        return uuid.toString();
     }
 
 }

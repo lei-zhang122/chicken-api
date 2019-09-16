@@ -15,9 +15,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 
 /**
@@ -26,7 +26,7 @@ import java.util.Date;
  */
 @RestController
 @RequestMapping("/mp")
-public class HItChickenController {
+public class HItChickenController extends BaseController{
 
     private Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -39,27 +39,35 @@ public class HItChickenController {
     @Autowired
     RedisService redisService;
 
+    @Autowired
+    HttpServletRequest request;
+
 
     @RequestMapping(value = "/hitChicken", method = RequestMethod.POST)
     @ResponseBody
-    public Object hitChicken(@RequestBody HitChickenRequest request) {
+    public Object hitChicken(@RequestBody HitChickenRequest hitChickenRequest) {
 
-        if (StringUtils.isBlank(request.getOpenid()) || StringUtils.isBlank(request.getScore()) || StringUtils.isBlank(request.getHitOpenid())) {
+        String sessionId = request.getHeader("sessionId");
+        if (!isLogin(sessionId)) {
+            return CallResult.fail(CodeEnum.LOGIN_OUT_TIME.getCode(), CodeEnum.LOGIN_OUT_TIME.getMsg());
+        }
+
+        if (StringUtils.isBlank(hitChickenRequest.getOpenid()) || StringUtils.isBlank(hitChickenRequest.getScore()) || StringUtils.isBlank(hitChickenRequest.getHitOpenid())) {
             return CallResult.fail(CodeEnum.LACK_PARAM.getCode(), CodeEnum.LACK_PARAM.getMsg());
         }
 
-        Object userId = redisService.get(ContantUtil.OPEN_ID.concat(request.getOpenid()));
+        Object userId = redisService.get(ContantUtil.OPEN_ID.concat(hitChickenRequest.getOpenid()));
         if (null == userId) {
             return CallResult.fail(CodeEnum.NO_FIND_USER.getCode(), CodeEnum.NO_FIND_USER.getMsg());
         } else {
-            request.setUserId(userId.toString());
+            hitChickenRequest.setUserId(userId.toString());
         }
 
-        Object hitUserId = redisService.get(ContantUtil.OPEN_ID.concat(request.getHitOpenid()));
+        Object hitUserId = redisService.get(ContantUtil.OPEN_ID.concat(hitChickenRequest.getHitOpenid()));
         if (null == hitUserId) {
             return CallResult.fail(CodeEnum.NO_FIND_USER.getCode(), CodeEnum.NO_FIND_USER.getMsg());
         } else {
-            request.setHitUserId(hitUserId.toString());
+            hitChickenRequest.setHitUserId(hitUserId.toString());
         }
 
         //每天最大分值
@@ -69,7 +77,7 @@ public class HItChickenController {
         String now = DateUtil.getSpecifiedDay("yyyy-MM-dd", 0);
 
         //已经获得的积分
-        Object gainScoreObj = redisService.get(ContantUtil.GAIN_SCORE.concat(now).concat(":").concat(request.getUserId()));
+        Object gainScoreObj = redisService.get(ContantUtil.GAIN_SCORE.concat(now).concat(":").concat(hitChickenRequest.getUserId()));
         Double gainScore = 0.0;
         if (null != gainScoreObj) {
             gainScore = Double.valueOf(gainScoreObj.toString());
@@ -78,32 +86,39 @@ public class HItChickenController {
 
         //不再获得积分
         if (diffValue <= 0) {
-            Object score = redisService.get(ContantUtil.GAIN_SCORE.concat(now).concat(":").concat(request.getUserId()));
+            Object score = redisService.get(ContantUtil.GAIN_SCORE.concat(now).concat(":").concat(hitChickenRequest.getUserId()));
             return returnResult(score.toString());
         }
 
         //差值大于得分 插入记录
-        if (diffValue > Double.valueOf(request.getScore())) {
+        if (diffValue > Double.valueOf(hitChickenRequest.getScore())) {
 
             //更新缓存
-            redisService.set(ContantUtil.GAIN_SCORE.concat(now).concat(":").concat(request.getUserId()), Double.valueOf(request.getScore()) + gainScore);
+            redisService.set(ContantUtil.GAIN_SCORE.concat(now).concat(":").concat(hitChickenRequest.getUserId()), Double.valueOf(hitChickenRequest.getScore()) + gainScore);
 
             //插入分值
-            insetDetail(Double.valueOf(request.getScore()), request.getUserId(),request.getOpenid(),request.getHitUserId());
+            insetDetail(Double.valueOf(hitChickenRequest.getScore()), hitChickenRequest.getUserId(),hitChickenRequest.getOpenid(),hitChickenRequest.getHitUserId());
         } else {
             //更新缓存
-            redisService.set(ContantUtil.GAIN_SCORE.concat(now).concat(":").concat(request.getUserId()), gainScore + diffValue);
+            redisService.set(ContantUtil.GAIN_SCORE.concat(now).concat(":").concat(hitChickenRequest.getUserId()), gainScore + diffValue);
 
             //插入分值
-            insetDetail(diffValue, request.getUserId(),request.getOpenid(),request.getHitUserId());
+            insetDetail(diffValue, hitChickenRequest.getUserId(),hitChickenRequest.getOpenid(),hitChickenRequest.getHitUserId());
         }
 
 
-        gainScoreObj = redisService.get(ContantUtil.GAIN_SCORE.concat(now).concat(":").concat(request.getUserId()));
+        gainScoreObj = redisService.get(ContantUtil.GAIN_SCORE.concat(now).concat(":").concat(hitChickenRequest.getUserId()));
 
         return returnResult(gainScoreObj.toString());
     }
 
+    /**
+     * 插入明细
+     * @param score
+     * @param userId
+     * @param openid 揍小鸡用户
+     * @param hitUserId 被打用户
+     */
     public void insetDetail(Double score, String userId,String openid,String hitUserId) {
 
         //更新账户信息
@@ -116,11 +131,16 @@ public class HItChickenController {
         //修改排行榜分值
         redisService.incrScore(ContantUtil.USER_RANKING_LIST,accountUser.getUserId().toString(),score);
 
+        //修改自己排行榜的分
+        redisService.incrScore(ContantUtil.FRIEND_RANKING_LIST.concat(openid),accountUser.getUserId().toString(),score);
+
         //修改好友排行榜分值
         Object myFriend = redisService.get(ContantUtil.USER_OWNER_SET.concat(openid));
         if(null != myFriend){
             redisService.incrScore(myFriend.toString(),accountUser.getUserId().toString(),score);
         }
+
+
 
         //插入记录
         insertHitDetail(Integer.valueOf(userId), score, accountUser.getAttentCount(),Integer.valueOf(hitUserId));

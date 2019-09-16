@@ -28,8 +28,8 @@ public class AccountDetailService {
 
     @Transactional(rollbackFor = Exception.class)
     @Async
-    public int insert(AccountDetail record) {
-        return accountDetailDao.insert(record);
+    public void insert(AccountDetail record) {
+        accountDetailDao.insert(record);
     }
 
     public AccountDetail selectByPrimaryKey(Integer id) {

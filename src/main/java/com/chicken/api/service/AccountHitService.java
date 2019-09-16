@@ -29,8 +29,8 @@ public class AccountHitService {
 
     @Transactional(rollbackFor = Exception.class)
     @Async
-    public int insert(AccountHit record) {
-        return accountHitDao.insert(record);
+    public void insert(AccountHit record) {
+         accountHitDao.insert(record);
     }
 
     public AccountHit selectByPrimaryKey(Integer id) {

@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -28,7 +29,7 @@ import java.util.Set;
  */
 @RestController
 @RequestMapping("/mp")
-public class UserController {
+public class UserController extends BaseController{
 
     private Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -37,6 +38,9 @@ public class UserController {
 
     @Autowired
     GoodOrderService goodOrderService;
+
+    @Autowired
+    HttpServletRequest request;
 
     /**
      * 获取大力丸排行榜
@@ -57,6 +61,7 @@ public class UserController {
             if (null != userInfo) {
                 JSONObject json = JSON.parseObject(userInfo.toString());
                 jsonObject.put("nickName", json.getString("nickName"));
+                jsonObject.put("avatar",json.getString("avatar"));
                 jsonObject.put("score", redisService.score(ContantUtil.USER_RANKING_LIST, str));
                 jsonArray.add(jsonObject);
             }
@@ -73,23 +78,28 @@ public class UserController {
      */
     @RequestMapping(value = "/integralCount", method = RequestMethod.POST)
     @ResponseBody
-    public Object integralCount(@RequestBody UserRequest request) {
+    public Object integralCount(@RequestBody UserRequest userRequest) {
 
-        if (StringUtils.isBlank(request.getOpenid())) {
+        String sessionId = request.getHeader("sessionId");
+        if (!isLogin(sessionId)) {
+            return CallResult.fail(CodeEnum.LOGIN_OUT_TIME.getCode(), CodeEnum.LOGIN_OUT_TIME.getMsg());
+        }
+
+        if (StringUtils.isBlank(userRequest.getOpenid())) {
             return CallResult.fail(CodeEnum.LACK_PARAM.getCode(), CodeEnum.LACK_PARAM.getMsg());
         }
 
-        Object userId = redisService.get(ContantUtil.OPEN_ID.concat(request.getOpenid()));
+        Object userId = redisService.get(ContantUtil.OPEN_ID.concat(userRequest.getOpenid()));
         if (null == userId) {
             return CallResult.fail(CodeEnum.NO_FIND_USER.getCode(), CodeEnum.NO_FIND_USER.getMsg());
         } else {
-            request.setUserId(userId.toString());
+            userRequest.setUserId(userId.toString());
         }
 
         //当期那时间
         String now = DateUtil.getSpecifiedDay("yyyy-MM-dd", 0);
 
-        Object gainScoreObj = redisService.get(ContantUtil.GAIN_SCORE.concat(now).concat(":").concat(request.getUserId()));
+        Object gainScoreObj = redisService.get(ContantUtil.GAIN_SCORE.concat(now).concat(":").concat(userRequest.getUserId()));
         Double gainScore = 0.0;
         if (null != gainScoreObj) {
             gainScore = Double.valueOf(gainScoreObj.toString());
@@ -109,32 +119,37 @@ public class UserController {
      */
     @RequestMapping(value = "/goodExchangeList", method = RequestMethod.POST)
     @ResponseBody
-    public Object goodExchangeList(@RequestBody UserRequest request) {
+    public Object goodExchangeList(@RequestBody UserRequest userRequest) {
 
-        if (StringUtils.isBlank(request.getOpenid())) {
+        String sessionId = request.getHeader("sessionId");
+        if (!isLogin(sessionId)) {
+            return CallResult.fail(CodeEnum.LOGIN_OUT_TIME.getCode(), CodeEnum.LOGIN_OUT_TIME.getMsg());
+        }
+
+        if (StringUtils.isBlank(userRequest.getOpenid())) {
             return CallResult.fail(CodeEnum.LACK_PARAM.getCode(), CodeEnum.LACK_PARAM.getMsg());
         }
 
-        Object userId = redisService.get(ContantUtil.OPEN_ID.concat(request.getOpenid()));
+        Object userId = redisService.get(ContantUtil.OPEN_ID.concat(userRequest.getOpenid()));
         if (null == userId) {
             return CallResult.fail(CodeEnum.NO_FIND_USER.getCode(), CodeEnum.NO_FIND_USER.getMsg());
         } else {
-            request.setUserId(userId.toString());
+            userRequest.setUserId(userId.toString());
         }
 
         Integer pageNum = ContantUtil.DEFAULT_PAGE_NUM;
-        if (null != request.getCurrentPage() && !"0".equals(request.getCurrentPage())) {
-            pageNum = Integer.valueOf(request.getCurrentPage());
+        if (null != userRequest.getCurrentPage() && !"0".equals(userRequest.getCurrentPage())) {
+            pageNum = Integer.valueOf(userRequest.getCurrentPage());
         }
 
         Integer pageSize = ContantUtil.DEFAULT_PAGE_SIZE;
-        if (null != request.getPageSize() && !"0".equals(request.getPageSize())) {
-            pageSize = Integer.valueOf(request.getPageSize());
+        if (null != userRequest.getPageSize() && !"0".equals(userRequest.getPageSize())) {
+            pageSize = Integer.valueOf(userRequest.getPageSize());
         }
 
         //查询兑换信息
         GoodOrder goodOrder = new GoodOrder();
-        goodOrder.setUserId(Integer.valueOf(request.getUserId()));
+        goodOrder.setUserId(Integer.valueOf(userRequest.getUserId()));
         goodOrder.setStatus("1");
         PageInfo<Map> result = this.goodOrderService.selectByGoodOrder(goodOrder, pageNum, pageSize);
         JSONObject returnJson = new JSONObject();
@@ -151,6 +166,7 @@ public class UserController {
                 object.put("goodType", m.get("good_type"));
                 object.put("orderNum", m.get("order_num"));
                 object.put("expressName", m.get("express_name"));
+                object.put("score", m.get("good_down_virtual"));
                 object.put("expressNum", m.get("express_num"));
                 String status = m.get("exchange_status").toString();
                 if (status.equals("1")) {
@@ -169,39 +185,6 @@ public class UserController {
         }
 
         return CallResult.success(returnJson);
-    }
-
-
-
-    /**
-     * 获取好友排行榜
-     *
-     * @return
-     */
-    @RequestMapping(value = "/integralByFriend", method = RequestMethod.POST)
-    @ResponseBody
-    public Object integralByFriend(@RequestBody UserRequest request) {
-
-        if(StringUtils.isBlank(request.getOpenid())){
-            return CallResult.fail(CodeEnum.LACK_PARAM.getCode(), CodeEnum.LACK_PARAM.getMsg());
-        }
-
-        Set<Object> userList = redisService.revRange(ContantUtil.FRIEND_RANKING_LIST.concat(request.getOpenid()), 0, 1000);
-        Iterator<Object> it = userList.iterator();
-        JSONArray jsonArray = new JSONArray();
-        while (it.hasNext()) {
-            String str = it.next().toString();
-            JSONObject jsonObject = new JSONObject();
-            Object userInfo = redisService.get(ContantUtil.USER_INFO.concat(str));
-            if (null != userInfo) {
-                JSONObject json = JSON.parseObject(userInfo.toString());
-                jsonObject.put("nickName", json.getString("nickName"));
-                jsonObject.put("score", redisService.score(ContantUtil.USER_RANKING_LIST, str));
-                jsonArray.add(jsonObject);
-            }
-        }
-
-        return CallResult.success(jsonArray.toArray());
     }
 
 }

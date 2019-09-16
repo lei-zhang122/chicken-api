@@ -12,6 +12,8 @@ public class ContantUtil {
 
     public static Integer DEFAULT_PAGE_SIZE = 20;
 
+    //是否登录
+    public static String IS_LOGIN = "log:sid:";
 
     //连续打卡天数
     public static String TOTAL_KEY = "total:id:";
@@ -31,7 +33,7 @@ public class ContantUtil {
     //好友排行榜 friendRankList:openid
     public static String FRIEND_RANKING_LIST = "friendRankList:";
 
-    //好友排行榜 user:owner:set:1,
+    //属于哪个好友排行榜 user:owner:set:openid
     public static String USER_OWNER_SET = "user:owner:set:";
 
     //用户信息
@@ -40,12 +42,12 @@ public class ContantUtil {
     //用户OPENID
     public static String OPEN_ID = "openid:";
 
-    //用户一天邀请几次
-    public static String USER_INVITE_ONE_DAY ="invite:count:day";
+    //用户可一天邀请几次
+    public static String USER_INVITE_ONE_DAY = "invite:count:day";
 
     //用户邀请的分
-    public static String INVITE_SCORE ="invite:score";
+    public static String INVITE_SCORE = "invite:score";
 
     //用户已经邀请次数
-    public static String USER_INVITE_COUNT ="user:invite:count:";
+    public static String USER_INVITE_COUNT = "user:invite:count:";
 }

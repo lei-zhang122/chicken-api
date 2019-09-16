@@ -15,9 +15,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
@@ -27,7 +27,7 @@ import java.util.concurrent.TimeUnit;
  */
 @RestController
 @RequestMapping("/mp")
-public class SignedController {
+public class SignedController extends BaseController{
 
     private Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -40,63 +40,71 @@ public class SignedController {
     @Autowired
     RedisService redisService;
 
+    @Autowired
+    HttpServletRequest request;
+
 
     @RequestMapping(value = "/signed", method = RequestMethod.POST)
     @ResponseBody
-    public Object singed(@RequestBody SignedRequest request) {
+    public Object singed(@RequestBody SignedRequest signedRequest) {
 
-        if (StringUtils.isBlank(request.getOpenid())) {
+        String sessionId = request.getHeader("sessionId");
+        if (!isLogin(sessionId)) {
+            return CallResult.fail(CodeEnum.LOGIN_OUT_TIME.getCode(), CodeEnum.LOGIN_OUT_TIME.getMsg());
+        }
+
+        if (StringUtils.isBlank(signedRequest.getOpenid())) {
             return CallResult.fail(CodeEnum.LACK_PARAM.getCode(), CodeEnum.LACK_PARAM.getMsg());
         }
 
-        Object userId = redisService.get(ContantUtil.OPEN_ID.concat(request.getOpenid()));
+        Object userId = redisService.get(ContantUtil.OPEN_ID.concat(signedRequest.getOpenid()));
         if (null == userId) {
             return CallResult.fail(CodeEnum.NO_FIND_USER.getCode(), CodeEnum.NO_FIND_USER.getMsg());
         } else {
-            request.setUserId(userId.toString());
+            signedRequest.setUserId(userId.toString());
         }
 
         //当期那时间
         String now = DateUtil.getSpecifiedDay("yyyy-MM-dd", 0);
 
         //获取缓存判断是否打卡
-        Object isSigned = redisService.get(ContantUtil.SIGNED_KEY.concat(now).concat(":").concat(request.getUserId()));
+        Object isSigned = redisService.get(ContantUtil.SIGNED_KEY.concat(now).concat(":").concat(signedRequest.getUserId()));
         if (null != isSigned) {
             return returnResult(isSigned.toString());
         }
 
         //判断缓存打卡天数是否有值，如果存在分值获取
         String yesterday = DateUtil.getSpecifiedDay("yyyy-MM-dd", 1);
-        Object yesterDayObj = redisService.get(ContantUtil.SIGNED_KEY.concat(yesterday).concat(":").concat(request.getUserId()));
+        Object yesterDayObj = redisService.get(ContantUtil.SIGNED_KEY.concat(yesterday).concat(":").concat(signedRequest.getUserId()));
         if (null == yesterDayObj) {
             //删除原来的key
-            redisService.deleteKey(ContantUtil.TOTAL_KEY.concat(request.getUserId()));
+            redisService.deleteKey(ContantUtil.TOTAL_KEY.concat(signedRequest.getUserId()));
             //获取第一天的分值，打卡
             Object oneday = redisService.get("d:oneday");
-            insertCache(now, request.getUserId(), oneday.toString());
-            insertDetail(oneday.toString(), request.getUserId(),request.getOpenid());
+            insertCache(now, signedRequest.getUserId(), oneday.toString());
+            insertDetail(oneday.toString(), signedRequest.getUserId(),signedRequest.getOpenid());
             return returnResult(oneday.toString());
         }
 
         //获取已经打卡几天
-        Object total = redisService.get(ContantUtil.SIGNED_KEY.concat(request.getUserId()));
+        Object total = redisService.get(ContantUtil.TOTAL_KEY.concat(signedRequest.getUserId()));
         if (total.equals("1")) {
             //获取第二天的积分
             Object twoDay = redisService.get("d:twoday");
-            insertCache(now, request.getUserId(), twoDay.toString());
-            insertDetail(twoDay.toString(), request.getUserId(),request.getOpenid());
+            insertCache(now, signedRequest.getUserId(), twoDay.toString());
+            insertDetail(twoDay.toString(), signedRequest.getUserId(),signedRequest.getOpenid());
             return returnResult(twoDay.toString());
         } else if (total.equals("2")) {
             //获取第三天的积分
             Object threeday = redisService.get("d:threeday");
-            insertCache(now, request.getUserId(), threeday.toString());
-            insertDetail(threeday.toString(), request.getUserId(),request.getOpenid());
+            insertCache(now, signedRequest.getUserId(), threeday.toString());
+            insertDetail(threeday.toString(), signedRequest.getUserId(),signedRequest.getOpenid());
             return returnResult(threeday.toString());
         } else {
             //获取第三天的积分
             Object fourday = redisService.get("d:fourday");
-            insertCache(now, request.getUserId(), fourday.toString());
-            insertDetail(fourday.toString(), request.getUserId(),request.getOpenid());
+            insertCache(now, signedRequest.getUserId(), fourday.toString());
+            insertDetail(fourday.toString(), signedRequest.getUserId(),signedRequest.getOpenid());
             return returnResult(fourday.toString());
         }
     }
@@ -125,6 +133,9 @@ public class SignedController {
 
             //修改排行榜分值
             redisService.incrScore(ContantUtil.USER_RANKING_LIST, accountUser.getUserId().toString(), Double.valueOf(score));
+
+            //修改自己排行榜的分
+            redisService.incrScore(ContantUtil.FRIEND_RANKING_LIST.concat(openid),accountUser.getUserId().toString(),Double.valueOf(score));
 
             //修改好友排行榜分值
             Object myFriend = redisService.get(ContantUtil.USER_OWNER_SET.concat(openid));

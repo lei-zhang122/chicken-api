@@ -1,6 +1,5 @@
 package com.chicken.api.controller;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.chicken.api.model.AccountDetail;
@@ -19,6 +18,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
  */
 @RestController
 @RequestMapping("/mp")
-public class ConsumeController {
+public class ConsumeController extends BaseController{
 
     @Autowired
     AccountDetailService accountDetailService;
@@ -48,34 +48,42 @@ public class ConsumeController {
     @Autowired
     WechatUserService wechatUserService;
 
+    @Autowired
+    HttpServletRequest request;
+
     /**
      * 我的交易信息
      *
-     * @param request
+     * @param userRequest
      * @return
      */
     @RequestMapping(value = "/consumeList", method = RequestMethod.POST)
     @ResponseBody
-    public Object consumeList(@RequestBody UserRequest request) {
+    public Object consumeList(@RequestBody UserRequest userRequest) {
 
-        if (StringUtils.isBlank(request.getOpenid())) {
+        String sessionId = request.getHeader("sessionId");
+        if (!isLogin(sessionId)) {
+            return CallResult.fail(CodeEnum.LOGIN_OUT_TIME.getCode(), CodeEnum.LOGIN_OUT_TIME.getMsg());
+        }
+
+        if (StringUtils.isBlank(userRequest.getOpenid())) {
             return CallResult.fail(CodeEnum.LACK_PARAM.getCode(), CodeEnum.LACK_PARAM.getMsg());
         }
 
-        Object userId = redisService.get(ContantUtil.OPEN_ID.concat(request.getOpenid()));
+        Object userId = redisService.get(ContantUtil.OPEN_ID.concat(userRequest.getOpenid()));
         if (null == userId) {
             return CallResult.fail(CodeEnum.NO_FIND_USER.getCode(), CodeEnum.NO_FIND_USER.getMsg());
         } else {
-            request.setUserId(userId.toString());
+            userRequest.setUserId(userId.toString());
         }
 
         //查询打卡明细
         List<ConsumeRquest> consumeRquestList = new ArrayList<>();
-        consumeRquestList = selectBySigned(request, Integer.valueOf(userId.toString()), consumeRquestList);
+        consumeRquestList = selectBySigned(userRequest, Integer.valueOf(userId.toString()), consumeRquestList);
 
-        consumeRquestList = selectByHit(request, Integer.valueOf(userId.toString()), consumeRquestList);
+        consumeRquestList = selectByHit(userRequest, Integer.valueOf(userId.toString()), consumeRquestList);
 
-        consumeRquestList = selectByDetail(request, Integer.valueOf(userId.toString()), consumeRquestList);
+        consumeRquestList = selectByDetail(userRequest, Integer.valueOf(userId.toString()), consumeRquestList);
 
         List result = consumeRquestList.stream().sorted(Comparator.comparing(ConsumeRquest::getCreateTime).reversed()).collect(Collectors.toList());
 
@@ -190,36 +198,41 @@ public class ConsumeController {
     /**
      * 揍过的鸡
      *
-     * @param request
+     * @param userRequest
      * @return
      */
     @RequestMapping(value = "/operateList", method = RequestMethod.POST)
     @ResponseBody
-    public Object operateList(@RequestBody UserRequest request) {
+    public Object operateList(@RequestBody UserRequest userRequest) {
 
-        if (StringUtils.isBlank(request.getOpenid())) {
+        String sessionId = request.getHeader("sessionId");
+        if (!isLogin(sessionId)) {
+            return CallResult.fail(CodeEnum.LOGIN_OUT_TIME.getCode(), CodeEnum.LOGIN_OUT_TIME.getMsg());
+        }
+
+        if (StringUtils.isBlank(userRequest.getOpenid())) {
             return CallResult.fail(CodeEnum.LACK_PARAM.getCode(), CodeEnum.LACK_PARAM.getMsg());
         }
 
-        Object userId = redisService.get(ContantUtil.OPEN_ID.concat(request.getOpenid()));
+        Object userId = redisService.get(ContantUtil.OPEN_ID.concat(userRequest.getOpenid()));
         if (null == userId) {
             return CallResult.fail(CodeEnum.NO_FIND_USER.getCode(), CodeEnum.NO_FIND_USER.getMsg());
         } else {
-            request.setUserId(userId.toString());
+            userRequest.setUserId(userId.toString());
         }
 
         JSONObject jsonObject = new JSONObject();
 
         //查询我揍过的鸡
         AccountHit accountHit = new AccountHit();
-        accountHit.setUserId(Integer.valueOf(request.getUserId()));
+        accountHit.setUserId(Integer.valueOf(userRequest.getUserId()));
         PageInfo<Map> lists = this.accountHitService.selectHitUserName(accountHit, ContantUtil.DEFAULT_PAGE_NUM,ContantUtil.DEFAULT_PAGE_SIZE);
         JSONArray hitChicken = new JSONArray();
         if (lists.getList().size() > 0) {
             for(Map m:lists.getList()){
                 JSONObject obj = new JSONObject();
-                obj.put("nickName",m.get("nick_name"));
-                obj.put("avatar",m.get("avatar"));
+                obj.put("nickName",m.get("hit_nick_name"));
+                obj.put("avatar",m.get("hit_avatar"));
                 hitChicken.add(obj);
             }
         }
@@ -228,14 +241,14 @@ public class ConsumeController {
 
         //查询揍过我的鸡
         accountHit = new AccountHit();
-        accountHit.setHitUserId(Integer.valueOf(request.getUserId()));
+        accountHit.setHitUserId(Integer.valueOf(userRequest.getUserId()));
         lists = this.accountHitService.selectHitUserName(accountHit, ContantUtil.DEFAULT_PAGE_NUM,ContantUtil.DEFAULT_PAGE_SIZE);
         JSONArray byHitChicken = new JSONArray();
         if (lists.getList().size() > 0) {
             for(Map m:lists.getList()){
                 JSONObject obj = new JSONObject();
-                obj.put("nickName",m.get("hit_nick_name"));
-                obj.put("avatar",m.get("hit_avatar"));
+                obj.put("nickName",m.get("nick_name"));
+                obj.put("avatar",m.get("avatar"));
                 byHitChicken.add(obj);
             }
         }

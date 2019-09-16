@@ -18,7 +18,7 @@
     delete from t_wechat_user
     where id = #{id,jdbcType=INTEGER}
   </delete>
-  <insert id="insert" parameterType="com.chicken.api.model.WechatUser" >
+  <insert id="insert" parameterType="com.chicken.api.model.WechatUser" useGeneratedKeys="true" keyProperty="id">
     insert into t_wechat_user (id, nick_name, phone, 
       avatar, openid, unionid, 
       sex, invite_num, status, create_time,reg_source

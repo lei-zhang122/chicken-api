@@ -25,8 +25,8 @@ public class GoodOrderService {
 
     @Transactional(rollbackFor = Exception.class)
     @Async
-    public int insert(GoodOrder record) {
-        return goodOrderDao.insert(record);
+    public void insert(GoodOrder record) {
+        goodOrderDao.insert(record);
     }
 
     public GoodOrder selectByPrimaryKey(Integer id) {

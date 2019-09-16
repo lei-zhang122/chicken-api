@@ -29,8 +29,8 @@ public class AccountSignedService {
 
     @Transactional(rollbackFor = Exception.class)
     @Async
-    public int insert(AccountSigned record) {
-        return accountSignedDao.insert(record);
+    public void insert(AccountSigned record) {
+         accountSignedDao.insert(record);
     }
 
     public AccountSigned selectByPrimaryKey(Integer id) {
