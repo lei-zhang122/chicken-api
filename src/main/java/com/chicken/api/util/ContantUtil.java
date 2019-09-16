@@ -50,4 +50,10 @@ public class ContantUtil {
 
     //用户已经邀请次数
     public static String USER_INVITE_COUNT = "user:invite:count:";
+
+    //微信access_token
+    public static String ACCESS_TOKEN="";
+
+    //消息模板id
+    public static String DINING_TEMPLATE="";
 }
