@@ -91,54 +91,67 @@ public class UserIndexController extends BaseController{
     @ResponseBody
     public Object myFriendRanking(@RequestBody UserRequest request) {
 
-        if (StringUtils.isBlank(request.getOpenid())) {
+        if (StringUtils.isBlank(request.getOpenid()) || StringUtils.isBlank(request.getCurrentPage()) || StringUtils.isBlank(request.getType())) {
             return CallResult.fail(CodeEnum.LACK_PARAM.getCode(), CodeEnum.LACK_PARAM.getMsg());
+        }
+
+        Integer pageNum = Integer.valueOf(request.getCurrentPage());
+        Integer pageSize = pageNum*10;
+
+        if(pageNum==1){
+            pageNum=0;
+        }else{
+            pageNum = (pageNum-1)*10;
         }
 
         JSONObject result = new JSONObject();
 
-        //获得好友排行榜
-        Set<Object> a = redisService.revRange(ContantUtil.FRIEND_RANKING_LIST.concat(request.getOpenid()), 0, 10000);
-        Iterator<Object> it = a.iterator();
-        JSONArray jsonArray = new JSONArray();
-        while (it.hasNext()) {
-            String str = it.next().toString();
-            JSONObject jsonObject = new JSONObject();
-            Object userInfo = redisService.get(ContantUtil.USER_INFO.concat(str));
-            if (null != userInfo) {
-                JSONObject json = JSON.parseObject(userInfo.toString());
-                jsonObject.put("score", redisService.score(ContantUtil.FRIEND_RANKING_LIST.concat(request.getOpenid()), str));
-                jsonObject.put("nickName", json.getString("nickName"));
-                jsonObject.put("ranking",Long.valueOf(redisService.rank(ContantUtil.FRIEND_RANKING_LIST.concat(request.getOpenid()),str))+1);
-                jsonObject.put("avatar",json.getString("avatar"));
-                jsonArray.add(jsonObject);
+        if(request.getType().equals("1")){
+
+            //获得好友排行榜
+            Set<Object> a = redisService.revRange(ContantUtil.FRIEND_RANKING_LIST.concat(request.getOpenid()), pageNum, pageSize);
+            Iterator<Object> it = a.iterator();
+            JSONArray jsonArray = new JSONArray();
+            while (it.hasNext()) {
+                String str = it.next().toString();
+                JSONObject jsonObject = new JSONObject();
+                Object userInfo = redisService.get(ContantUtil.USER_INFO.concat(str));
+                if (null != userInfo) {
+                    JSONObject json = JSON.parseObject(userInfo.toString());
+                    jsonObject.put("score", redisService.score(ContantUtil.FRIEND_RANKING_LIST.concat(request.getOpenid()), str));
+                    jsonObject.put("nickName", json.getString("nickName"));
+                    jsonObject.put("openid", json.getString("openid"));
+                    jsonObject.put("rank",Long.valueOf(redisService.rank(ContantUtil.FRIEND_RANKING_LIST.concat(request.getOpenid()),str))+1);
+                    jsonObject.put("avatar",json.getString("avatar"));
+                    jsonArray.add(jsonObject);
+                }
+                result.put("friendRanking",jsonArray.toArray());
             }
-        }
+        }else if(request.getType().equals("2")){
 
-        result.put("friendRanking",jsonArray.toArray());
-
-        //获得总排行榜
-        Set<Object> userList = redisService.revRange(ContantUtil.USER_RANKING_LIST, 0, 9);
-        it = userList.iterator();
-        JSONArray count = new JSONArray();
-        while (it.hasNext()) {
-            String str = it.next().toString();
-            JSONObject jsonObject = new JSONObject();
-            Object userInfo = redisService.get(ContantUtil.USER_INFO.concat(str));
-            if (null != userInfo) {
-                JSONObject json = JSON.parseObject(userInfo.toString());
-                jsonObject.put("avatar",json.getString("avatar"));
-                jsonObject.put("score", redisService.score(ContantUtil.USER_RANKING_LIST, str));
-                jsonObject.put("ranking",Long.valueOf(redisService.rank(ContantUtil.USER_RANKING_LIST,str))+1);
-                jsonObject.put("nickName", json.getString("nickName"));
-                count.add(jsonObject);
+            //获得总排行榜
+            Set<Object> userList = redisService.revRange(ContantUtil.USER_RANKING_LIST, pageNum, pageSize);
+            Iterator<Object> it = userList.iterator();
+            JSONArray count = new JSONArray();
+            while (it.hasNext()) {
+                String str = it.next().toString();
+                JSONObject jsonObject = new JSONObject();
+                Object userInfo = redisService.get(ContantUtil.USER_INFO.concat(str));
+                if (null != userInfo) {
+                    JSONObject json = JSON.parseObject(userInfo.toString());
+                    jsonObject.put("avatar",json.getString("avatar"));
+                    jsonObject.put("openid", json.getString("openid"));
+                    jsonObject.put("score", redisService.score(ContantUtil.USER_RANKING_LIST, str));
+                    jsonObject.put("rank",Long.valueOf(redisService.rank(ContantUtil.USER_RANKING_LIST,str))+1);
+                    jsonObject.put("nickName", json.getString("nickName"));
+                    count.add(jsonObject);
+                }
             }
+
+            result.put("integralRanking",count.toArray());
+
+
         }
-
-        result.put("integralRanking",count.toArray());
-
-
-
         return CallResult.success(result);
     }
 }

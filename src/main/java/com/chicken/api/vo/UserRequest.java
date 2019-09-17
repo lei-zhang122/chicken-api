@@ -24,6 +24,14 @@ public class UserRequest {
 
     private String regSource;
 
+    private String type;
+
+    private String formId;
+
+    private String title;
+
+    private String content;
+
     public String getUserId() {
         return userId;
     }
@@ -94,5 +102,37 @@ public class UserRequest {
 
     public void setRegSource(String regSource) {
         this.regSource = regSource;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getFormId() {
+        return formId;
+    }
+
+    public void setFormId(String formId) {
+        this.formId = formId;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
     }
 }

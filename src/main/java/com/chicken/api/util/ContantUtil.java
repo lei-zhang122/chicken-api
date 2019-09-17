@@ -52,8 +52,8 @@ public class ContantUtil {
     public static String USER_INVITE_COUNT = "user:invite:count:";
 
     //微信access_token
-    public static String ACCESS_TOKEN="";
+    public static String ACCESS_TOKEN="access_token";
 
     //消息模板id
-    public static String DINING_TEMPLATE="";
+    public static String DINING_TEMPLATE="qKfOCgoTzPMg7rHJZiURzRbqWZm29CSTm9SPw_yWpNE";
 }

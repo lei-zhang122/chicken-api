@@ -2,13 +2,16 @@ package com.chicken.api.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.chicken.api.service.RedisService;
+import com.chicken.api.util.CallResult;
+import com.chicken.api.util.CodeEnum;
 import com.chicken.api.util.ContantUtil;
 import com.chicken.api.util.WechatUtil;
+import com.chicken.api.vo.UserRequest;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.concurrent.TimeUnit;
 
@@ -24,6 +27,29 @@ public class WechatMsgPushController {
     RedisService redisService;
 
     private Logger logger = LoggerFactory.getLogger(getClass());
+
+
+    /**
+     * 发送push
+     *
+     * @param request
+     * @return
+     */
+    @RequestMapping(value = "/pushNotice", method = RequestMethod.POST)
+    @ResponseBody
+    public Object pushNotice(@RequestBody UserRequest request) {
+
+        if (StringUtils.isBlank(request.getOpenid()) || StringUtils.isBlank(request.getFormId())
+                || StringUtils.isBlank(request.getTitle()) || StringUtils.isBlank(request.getContent())) {
+            return CallResult.fail(CodeEnum.LACK_PARAM.getCode(), CodeEnum.LACK_PARAM.getMsg());
+        }
+        logger.info("pushNoticeUtil方法开始，传入参数：openid={},formId={}", request.getOpenid(), request.getFormId());
+        if (!pushNoticeUtil(request.getOpenid(), request.getFormId(), request.getTitle(), request.getContent())) {
+            return CallResult.fail(CodeEnum.PUSH_FAIL.getCode(), CodeEnum.PUSH_FAIL.getMsg());
+        }
+
+        return CallResult.success();
+    }
 
     /**
      * 功能描述

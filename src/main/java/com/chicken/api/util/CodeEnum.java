@@ -25,7 +25,8 @@ public enum CodeEnum {
 	NO_FIND_USER(1004,"未找到用户"),
 	INTEGRAL_NO_THOUGH(1005,"可用积分小于商品积分"),
 	LOGIN_OUT_TIME(1006,"登录超时"),
-	OPENID_IS_NULL(1007,"openid is null");
+	OPENID_IS_NULL(1007,"openid is null"),
+	PUSH_FAIL(1008,"push消息失败");
 
 
 	 private static final Map<Integer, CodeEnum> codeMap = new HashMap<Integer, CodeEnum>((int)(CodeEnum.values().length/0.75)+1);
