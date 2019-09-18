@@ -172,23 +172,23 @@ public class UserIndexController extends BaseController {
     @RequestMapping(value = "/signedScore", method = RequestMethod.GET)
     @ResponseBody
     public Object signedScore() {
-        JSONObject jsonObject = new JSONObject();
+        String[] str = new String[7];
         Object oneday = redisService.get("d:oneday");
-        jsonObject.put("oneday",oneday);
+        str[0] = oneday+"";
         Object twoday = redisService.get("d:twoday");
-        jsonObject.put("twoday",twoday);
+        str[1] = twoday+"";
         Object threeday = redisService.get("d:threeday");
-        jsonObject.put("threeday",threeday);
+        str[2] = threeday+"";
         Object fourday = redisService.get("d:fourday");
-        jsonObject.put("fourday",fourday);
+        str[3] = fourday+"";
         Object fiveday = redisService.get("d:fiveday");
-        jsonObject.put("fiveday",fiveday);
+        str[4] = fiveday+"";
         Object sixday = redisService.get("d:sixday");
-        jsonObject.put("sixday",sixday);
+        str[5] = sixday+"";
         Object sevenday = redisService.get("d:sevenday");
-        jsonObject.put("sevenday",sevenday);
+        str[6] = sevenday+"";
 
-        return CallResult.success(jsonObject);
+        return CallResult.success(str);
     }
 
 }
