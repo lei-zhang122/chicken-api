@@ -30,6 +30,29 @@ public class WechatMsgPushController {
 
 
     /**
+     * 保存fromId
+     *
+     * @param request
+     * @return
+     */
+    @RequestMapping(value = "/saveFromId", method = RequestMethod.POST)
+    @ResponseBody
+    public Object saveFromId(@RequestBody UserRequest request) {
+
+        if (StringUtils.isBlank(request.getOpenid()) || StringUtils.isBlank(request.getFormId())) {
+            return CallResult.fail(CodeEnum.LACK_PARAM.getCode(), CodeEnum.LACK_PARAM.getMsg());
+        }
+
+        String[] formids = request.getFormId().split(",");
+        for (int i = 0; i < formids.length; i++) {
+
+        }
+
+        return CallResult.success();
+    }
+
+
+    /**
      * 发送push
      *
      * @param request

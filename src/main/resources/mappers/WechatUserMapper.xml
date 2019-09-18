@@ -58,6 +58,6 @@
   </select>
   <select id="selectTopFive" resultMap="BaseResultMap" >
     select id, nick_name, phone, avatar, openid, unionid, sex, invite_num, status, create_time,reg_source
-    from t_wechat_user where status=1 limit 0,5
+    from t_wechat_user where status=1 order by RAND() limit 5
   </select>
 </mapper>

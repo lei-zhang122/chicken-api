@@ -2,10 +2,7 @@ package com.chicken.api.controller;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.chicken.api.model.AccountDetail;
-import com.chicken.api.model.AccountHit;
-import com.chicken.api.model.AccountSigned;
-import com.chicken.api.model.WechatUser;
+import com.chicken.api.model.*;
 import com.chicken.api.service.*;
 import com.chicken.api.util.CallResult;
 import com.chicken.api.util.CodeEnum;
@@ -31,7 +28,7 @@ import java.util.stream.Collectors;
  */
 @RestController
 @RequestMapping("/mp")
-public class ConsumeController extends BaseController{
+public class ConsumeController extends BaseController {
 
     @Autowired
     AccountDetailService accountDetailService;
@@ -50,6 +47,9 @@ public class ConsumeController extends BaseController{
 
     @Autowired
     HttpServletRequest request;
+
+    @Autowired
+    UserInviteService userInviteService;
 
     /**
      * 我的交易信息
@@ -87,7 +87,7 @@ public class ConsumeController extends BaseController{
 
         List result = consumeRquestList.stream().sorted(Comparator.comparing(ConsumeRquest::getCreateTime).reversed()).collect(Collectors.toList());
 
-        JSONArray jsonArray=new JSONArray(result);
+        JSONArray jsonArray = new JSONArray(result);
         return CallResult.success(jsonArray.toArray());
     }
 
@@ -221,54 +221,69 @@ public class ConsumeController extends BaseController{
             userRequest.setUserId(userId.toString());
         }
 
-        JSONObject jsonObject = new JSONObject();
+        //查询好友信息
+        Integer pageNum = Integer.valueOf(userRequest.getCurrentPage());
+        Integer pageSize = pageNum * 10;
 
-        //查询我揍过的鸡
-        AccountHit accountHit = new AccountHit();
-        accountHit.setUserId(Integer.valueOf(userRequest.getUserId()));
-        PageInfo<Map> lists = this.accountHitService.selectHitUserName(accountHit, ContantUtil.DEFAULT_PAGE_NUM,ContantUtil.DEFAULT_PAGE_SIZE);
-        JSONArray hitChicken = new JSONArray();
-        if (lists.getList().size() > 0) {
-            for(Map m:lists.getList()){
-                JSONObject obj = new JSONObject();
-                obj.put("nickName",m.get("hit_nick_name"));
-                obj.put("avatar",m.get("hit_avatar"));
-                hitChicken.add(obj);
-            }
+        if (pageNum == 1) {
+            pageNum = 0;
+        } else {
+            pageNum = (pageNum - 1) * 10;
         }
 
-        jsonObject.put("hitChicken",hitChicken);
+        JSONObject jsonObject = new JSONObject();
 
         //查询揍过我的鸡
-        accountHit = new AccountHit();
+        AccountHit accountHit = new AccountHit();
         accountHit.setHitUserId(Integer.valueOf(userRequest.getUserId()));
-        lists = this.accountHitService.selectHitUserName(accountHit, ContantUtil.DEFAULT_PAGE_NUM,ContantUtil.DEFAULT_PAGE_SIZE);
+        PageInfo<Map> lists = this.accountHitService.selectHitUserName(accountHit, pageNum, pageSize);
         JSONArray byHitChicken = new JSONArray();
         if (lists.getList().size() > 0) {
-            for(Map m:lists.getList()){
+            for (Map m : lists.getList()) {
                 JSONObject obj = new JSONObject();
-                obj.put("nickName",m.get("nick_name"));
-                obj.put("avatar",m.get("avatar"));
+                obj.put("nickName", m.get("hit_nick_name"));
+                obj.put("avatar", m.get("hit_avatar"));
+                obj.put("openid", m.get("hit_openid"));
                 byHitChicken.add(obj);
             }
         }
 
-        jsonObject.put("byHitChicken",byHitChicken);
+        jsonObject.put("byHitChicken", byHitChicken);
 
 
         //查询用户5个
         JSONArray userInfo = new JSONArray();
         List<WechatUser> userPageInfo = this.wechatUserService.selectTopFive();
         if (userPageInfo.size() > 0) {
-            for(WechatUser m:userPageInfo){
+            for (WechatUser m : userPageInfo) {
                 JSONObject obj = new JSONObject();
-                obj.put("nickName",m.getNickName());
-                obj.put("avatar",m.getAvatar());
+                obj.put("nickName", m.getNickName());
+                obj.put("avatar", m.getAvatar());
+                obj.put("openid", m.getOpenid());
                 userInfo.add(obj);
             }
         }
 
-        jsonObject.put("userInfo",userInfo);
+        jsonObject.put("userInfo", userInfo);
+
+        //查询邀请用户
+        UserInvite userInvite = new UserInvite();
+        userInvite.setStatus("1");
+        userInvite.setUserId(Integer.valueOf(userRequest.getUserId()));
+        lists = this.userInviteService.selectHitUserName(userInvite, pageNum, pageSize);
+        JSONArray friend = new JSONArray();
+        if (lists.getList().size() > 0) {
+            for (Map m : lists.getList()) {
+                JSONObject obj = new JSONObject();
+                obj.put("nickName", m.get("invite_nick_name"));
+                obj.put("avatar", m.get("invite_avatar"));
+                obj.put("openid", m.get("invite_openid"));
+                friend.add(obj);
+            }
+        }
+
+        jsonObject.put("friend", friend);
+
 
         return CallResult.success(jsonObject);
 

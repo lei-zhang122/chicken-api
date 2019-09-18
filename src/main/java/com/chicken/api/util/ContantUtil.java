@@ -56,4 +56,7 @@ public class ContantUtil {
 
     //消息模板id
     public static String DINING_TEMPLATE="qKfOCgoTzPMg7rHJZiURzRbqWZm29CSTm9SPw_yWpNE";
+
+    //fromid
+    public static String FROMID_INFO="openid:fromid:";
 }

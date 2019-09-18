@@ -43,9 +43,8 @@
   </select>
   <select id="selectByUserInvite" resultType="java.util.HashMap" parameterType="com.chicken.api.model.UserInvite" >
     select t.id, t.user_id, t.invite_user_id, t.invite_status, t.invite_time,
-    a.nick_name,a.openid,b.nick_name as invite_nick_name,b.openid as invite_openid
+    b.nick_name as invite_nick_name,b.openid as invite_openid,b.avatar as invite_avatar
     from t_user_invite t
-    left join t_wechat_user a on a.id = t.user_id
     left join t_wechat_user b on b.id = t.invite_user_id
     WHERE 1=1
     <if test="userId != null and userId !=''" >
