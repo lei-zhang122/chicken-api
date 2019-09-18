@@ -23,7 +23,7 @@ import java.util.Set;
  */
 @RestController
 @RequestMapping("/mp")
-public class UserIndexController extends BaseController{
+public class UserIndexController extends BaseController {
 
     @Autowired
     AccountUserService accountUserService;
@@ -36,6 +36,7 @@ public class UserIndexController extends BaseController{
 
     /**
      * 首页信息
+     *
      * @param userRequest
      * @return
      */
@@ -55,7 +56,7 @@ public class UserIndexController extends BaseController{
 
         //根据openid查询用户id
         Object obj = redisService.get(ContantUtil.OPEN_ID.concat(userRequest.getOpenid()));
-        if(null == obj){
+        if (null == obj) {
             return CallResult.fail(CodeEnum.NO_FIND_USER.getCode(), CodeEnum.NO_FIND_USER.getMsg());
         }
 
@@ -66,24 +67,32 @@ public class UserIndexController extends BaseController{
         }*/
 
         JSONObject result = new JSONObject();
-        result.put("score",redisService.score(ContantUtil.USER_RANKING_LIST, obj.toString()));
+        result.put("score", redisService.score(ContantUtil.USER_RANKING_LIST, obj.toString()));
 
         //查询当前排行
-        result.put("ranking",Long.valueOf(redisService.rank(ContantUtil.USER_RANKING_LIST,obj.toString()))+1);
+        result.put("ranking", Long.valueOf(redisService.rank(ContantUtil.USER_RANKING_LIST, obj.toString())) + 1);
 
         //查询用户信息
         Object userInfojson = redisService.get(ContantUtil.USER_INFO.concat(obj.toString()));
-        if(null != userInfojson){
+        if (null != userInfojson) {
             JSONObject userInfo = JSON.parseObject(userInfojson.toString());
-            result.put("nickName",userInfo.getString("nickName"));
+            result.put("nickName", userInfo.getString("nickName"));
         }
 
+        //获取用户已经签到多少天
+        Object total = redisService.get(ContantUtil.TOTAL_KEY.concat(obj.toString()));
+        if (null == total) {
+            result.put("signedDays", 0);
+        } else {
+            result.put("signedDays", total);
+        }
         return CallResult.success(result);
     }
 
 
     /**
      * 获取我的好友排行榜
+     *
      * @param request
      * @return
      */
@@ -96,17 +105,17 @@ public class UserIndexController extends BaseController{
         }
 
         Integer pageNum = Integer.valueOf(request.getCurrentPage());
-        Integer pageSize = pageNum*10;
+        Integer pageSize = pageNum * 10;
 
-        if(pageNum==1){
-            pageNum=0;
-        }else{
-            pageNum = (pageNum-1)*10;
+        if (pageNum == 1) {
+            pageNum = 0;
+        } else {
+            pageNum = (pageNum - 1) * 10;
         }
 
         JSONObject result = new JSONObject();
 
-        if(request.getType().equals("1")){
+        if (request.getType().equals("1")) {
 
             //获得好友排行榜
             Set<Object> a = redisService.revRange(ContantUtil.FRIEND_RANKING_LIST.concat(request.getOpenid()), pageNum, pageSize);
@@ -121,13 +130,13 @@ public class UserIndexController extends BaseController{
                     jsonObject.put("score", redisService.score(ContantUtil.FRIEND_RANKING_LIST.concat(request.getOpenid()), str));
                     jsonObject.put("nickName", json.getString("nickName"));
                     jsonObject.put("openid", json.getString("openid"));
-                    jsonObject.put("rank",Long.valueOf(redisService.rank(ContantUtil.FRIEND_RANKING_LIST.concat(request.getOpenid()),str))+1);
-                    jsonObject.put("avatar",json.getString("avatar"));
+                    jsonObject.put("rank", Long.valueOf(redisService.rank(ContantUtil.FRIEND_RANKING_LIST.concat(request.getOpenid()), str)) + 1);
+                    jsonObject.put("avatar", json.getString("avatar"));
                     jsonArray.add(jsonObject);
                 }
-                result.put("friendRanking",jsonArray.toArray());
+                result.put("friendRanking", jsonArray.toArray());
             }
-        }else if(request.getType().equals("2")){
+        } else if (request.getType().equals("2")) {
 
             //获得总排行榜
             Set<Object> userList = redisService.revRange(ContantUtil.USER_RANKING_LIST, pageNum, pageSize);
@@ -139,19 +148,47 @@ public class UserIndexController extends BaseController{
                 Object userInfo = redisService.get(ContantUtil.USER_INFO.concat(str));
                 if (null != userInfo) {
                     JSONObject json = JSON.parseObject(userInfo.toString());
-                    jsonObject.put("avatar",json.getString("avatar"));
+                    jsonObject.put("avatar", json.getString("avatar"));
                     jsonObject.put("openid", json.getString("openid"));
                     jsonObject.put("score", redisService.score(ContantUtil.USER_RANKING_LIST, str));
-                    jsonObject.put("rank",Long.valueOf(redisService.rank(ContantUtil.USER_RANKING_LIST,str))+1);
+                    jsonObject.put("rank", Long.valueOf(redisService.rank(ContantUtil.USER_RANKING_LIST, str)) + 1);
                     jsonObject.put("nickName", json.getString("nickName"));
                     count.add(jsonObject);
                 }
             }
 
-            result.put("integralRanking",count.toArray());
+            result.put("integralRanking", count.toArray());
 
 
         }
         return CallResult.success(result);
     }
+
+    /**
+     * 获取7天签到得分
+     *
+     * @return
+     */
+    @RequestMapping(value = "/signedScore", method = RequestMethod.GET)
+    @ResponseBody
+    public Object signedScore() {
+        JSONObject jsonObject = new JSONObject();
+        Object oneday = redisService.get("d:oneday");
+        jsonObject.put("oneday",oneday);
+        Object twoday = redisService.get("d:twoday");
+        jsonObject.put("twoday",twoday);
+        Object threeday = redisService.get("d:threeday");
+        jsonObject.put("threeday",threeday);
+        Object fourday = redisService.get("d:fourday");
+        jsonObject.put("fourday",fourday);
+        Object fiveday = redisService.get("d:fiveday");
+        jsonObject.put("fiveday",fiveday);
+        Object sixday = redisService.get("d:sixday");
+        jsonObject.put("sixday",sixday);
+        Object sevenday = redisService.get("d:sevenday");
+        jsonObject.put("sevenday",sevenday);
+
+        return CallResult.success(jsonObject);
+    }
+
 }

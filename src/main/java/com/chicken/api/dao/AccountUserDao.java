@@ -14,6 +14,8 @@ public interface AccountUserDao {
 
     AccountUser selectByPrimaryKey(Integer id);
 
+    AccountUser selectByUserId(Integer userId);
+
     List<AccountUser> selectAll();
 
     int updateByPrimaryKey(AccountUser record);

@@ -209,7 +209,7 @@ public class GoodInfoController extends BaseController{
     public void insertGoodOrder(Double score, Integer goodId, Integer userId, String openid) {
 
         //减少积分
-        AccountUser accountUser = this.accountUserService.selectByPrimaryKey(userId);
+        AccountUser accountUser = this.accountUserService.selectByUserId(userId);
         if (null != accountUser) {
             accountUser.setBalance(accountUser.getBalance() - score);
             accountUser.setConsumeCount(accountUser.getConsumeCount() + score);

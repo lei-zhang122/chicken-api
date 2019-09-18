@@ -32,6 +32,10 @@ public class AccountUserService {
         return accountUserDao.selectByPrimaryKey(id);
     }
 
+    public AccountUser selectByUserId(Integer userId) {
+        return accountUserDao.selectByUserId(userId);
+    }
+
 
     public List<AccountUser> selectAll() {
         return accountUserDao.selectAll();

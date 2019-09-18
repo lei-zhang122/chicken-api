@@ -124,7 +124,7 @@ public class SignedController extends BaseController{
 
     public void insertDetail(String score, String userId,String openid) {
         //查询用户账户信息
-        AccountUser accountUser = this.accountUserService.selectByPrimaryKey(Integer.valueOf(userId));
+        AccountUser accountUser = this.accountUserService.selectByUserId(Integer.valueOf(userId));
         if (null != accountUser) {
             accountUser.setBalance(accountUser.getBalance() + Double.valueOf(score));
             accountUser.setAttentCount(accountUser.getAttentCount() + Double.valueOf(score));

@@ -122,7 +122,7 @@ public class HItChickenController extends BaseController{
     public void insetDetail(Double score, String userId,String openid,String hitUserId) {
 
         //更新账户信息
-        AccountUser accountUser = this.accountUserService.selectByPrimaryKey(Integer.valueOf(userId));
+        AccountUser accountUser = this.accountUserService.selectByUserId(Integer.valueOf(userId));
         accountUser.setAttentCount(accountUser.getAttentCount() + Double.valueOf(score));
         accountUser.setBalance(accountUser.getBalance() + Double.valueOf(score));
         accountUserService.updateByPrimaryKey(accountUser);
