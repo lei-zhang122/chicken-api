@@ -18,6 +18,7 @@ public interface GoodOrderDao {
 
     int updateByPrimaryKey(GoodOrder record);
 
-
     List<Map> selectByGoodOrder(GoodOrder goodOrder);
+
+    List<Map> selectByGoodOrderDetail(GoodOrder goodOrder);
 }

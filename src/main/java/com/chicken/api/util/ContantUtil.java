@@ -55,15 +55,17 @@ public class ContantUtil {
     public static String USER_INVITE_COUNT = "user:invite:count:";
 
     //微信access_token
-    public static String ACCESS_TOKEN="access_token";
+    public static String ACCESS_TOKEN = "access_token";
 
     //消息模板id
-    public static String DINING_TEMPLATE="qKfOCgoTzPMg7rHJZiURzRbqWZm29CSTm9SPw_yWpNE";
+    public static String DINING_TEMPLATE = "qKfOCgoTzPMg7rHJZiURzRbqWZm29CSTm9SPw_yWpNE";
 
     //fromid
-    public static String FROMID_INFO="fromid:list:";
+    public static String FROMID_INFO = "fromid:list:";
 
     //订单号
-    public static String ORDER_NUM="order:num";
+    public static String ORDER_NUM = "order:num";
 
+    //温馨提示
+    public static String TIPS_CONTENT = "tips:content";
 }

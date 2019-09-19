@@ -88,4 +88,22 @@
     </if>
     ORDER BY t.create_time DESC
   </select>
+
+  <select id="selectByGoodOrderDetail" resultType="java.util.HashMap" parameterType="com.chicken.api.model.GoodOrder" >
+    select t.id, t.exchange_time,i.good_name,i.good_type,i.good_img,t.exchange_status,
+    t.order_num,t.express_name,t.express_num,i.good_down_virtual,s.user_address,s.contact, s.phone,s.province_name,s.city_name,s.county_name
+    from t_good_order t
+    left join t_good_info i on i.id = t.good_id
+    left JOIN  t_user_address s ON s.id= t.address_id
+    WHERE 1=1
+    <if test="orderNum != null and orderNum !=''" >
+      AND t.order_num = #{orderNum}
+    </if>
+    <if test="userId != null and userId !=''" >
+      AND t.user_id = #{userId}
+    </if>
+    <if test="status != null and status !=''" >
+      AND t.status = #{status}
+    </if>
+  </select>
 </mapper>

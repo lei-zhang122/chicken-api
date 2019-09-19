@@ -32,6 +32,8 @@ public class UserRequest {
 
     private String content;
 
+    private String orderNum;
+
     public String getUserId() {
         return userId;
     }
@@ -134,5 +136,13 @@ public class UserRequest {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public String getOrderNum() {
+        return orderNum;
+    }
+
+    public void setOrderNum(String orderNum) {
+        this.orderNum = orderNum;
     }
 }

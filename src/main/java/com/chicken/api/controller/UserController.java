@@ -1,6 +1,5 @@
 package com.chicken.api.controller;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.chicken.api.model.GoodOrder;
@@ -19,9 +18,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * @author zhanglei
@@ -164,4 +162,68 @@ public class UserController extends BaseController {
         return CallResult.success(returnJson);
     }
 
+    /**
+     * 获取商品兑换记录
+     *
+     * @return
+     */
+    @RequestMapping(value = "/goodExchangeDetail", method = RequestMethod.POST)
+    @ResponseBody
+    public Object goodExchangeDetail(@RequestBody UserRequest userRequest) {
+
+        String sessionId = request.getHeader("sessionId");
+        if (!isLogin(sessionId)) {
+            return CallResult.fail(CodeEnum.LOGIN_OUT_TIME.getCode(), CodeEnum.LOGIN_OUT_TIME.getMsg());
+        }
+
+        if (StringUtils.isBlank(userRequest.getOpenid())) {
+            return CallResult.fail(CodeEnum.LACK_PARAM.getCode(), CodeEnum.LACK_PARAM.getMsg());
+        }
+
+        Object userId = redisService.get(ContantUtil.OPEN_ID.concat(userRequest.getOpenid()));
+        if (null == userId) {
+            return CallResult.fail(CodeEnum.NO_FIND_USER.getCode(), CodeEnum.NO_FIND_USER.getMsg());
+        } else {
+            userRequest.setUserId(userId.toString());
+        }
+
+        GoodOrder goodOrder = new GoodOrder();
+        goodOrder.setUserId(Integer.valueOf(userRequest.getUserId()));
+        goodOrder.setOrderNum(userRequest.getOrderNum());
+        goodOrder.setStatus("1");
+        List<Map> result = this.goodOrderService.selectByGoodOrderDetail(goodOrder);
+        JSONObject returnJson = new JSONObject();
+        if (result.size() > 0) {
+            Map m  = result.get(0);
+            JSONObject object = new JSONObject();
+            String date = m.get("exchange_time").toString();
+            object.put("exchangeTime", DateUtil.currentYYYYMMDDHHmmssWithSymbol(date));
+            object.put("goodName", m.get("good_name"));
+            object.put("goodImg", m.get("good_img"));
+            object.put("goodType", m.get("good_type"));
+            object.put("orderNum", m.get("order_num"));
+            object.put("expressName", m.get("express_name"));
+            object.put("score", m.get("good_down_virtual"));
+            object.put("expressNum", m.get("express_num"));
+            String status = m.get("exchange_status").toString();
+            if (status.equals("1")) {
+                object.put("exchangeStatus", "已下单");
+            } else if (status.equals("2")) {
+                object.put("exchangeStatus", "已发货");
+            } else if (status.equals("3")) {
+                object.put("exchangeStatus", "已完成");
+            }
+            object.put("addressDetail", m.get("user_address"));
+            object.put("contact", m.get("contact"));
+            object.put("phone", m.get("phone"));
+            object.put("province_name", m.get("province_name"));
+            object.put("city_name", m.get("city_name"));
+            object.put("county_name", m.get("county_name"));
+            returnJson.put("data", object);
+        } else {
+            returnJson.put("data", null);
+        }
+
+        return CallResult.success(returnJson);
+    }
 }

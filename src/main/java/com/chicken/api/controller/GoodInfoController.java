@@ -149,7 +149,7 @@ public class GoodInfoController extends BaseController {
         if (!userIntegral(goodInfoRequest.getUserId(), Double.valueOf(goodInfoRequest.getScore()))) {
             return CallResult.fail(CodeEnum.INTEGRAL_NO_THOUGH.getCode(), CodeEnum.INTEGRAL_NO_THOUGH.getMsg());
         }
-
+        String orderNum = getOrderNum();
         if (Integer.valueOf(goodNum.toString()) > 0) {
             //数字减一
             redisService.increment("good:id:".concat(goodInfoRequest.getGoodId()), -1);
@@ -160,10 +160,13 @@ public class GoodInfoController extends BaseController {
                 return CallResult.fail(CodeEnum.GOOD_NO_THOUGH.getCode(), CodeEnum.GOOD_NO_THOUGH.getMsg());
             }
 
-            insertGoodOrder(Double.valueOf(goodInfoRequest.getScore()), Integer.valueOf(goodInfoRequest.getGoodId()), Integer.valueOf(goodInfoRequest.getUserId()), goodInfoRequest.getOpenid(), goodInfoRequest);
+            insertGoodOrder(Double.valueOf(goodInfoRequest.getScore()), Integer.valueOf(goodInfoRequest.getGoodId()), Integer.valueOf(goodInfoRequest.getUserId()), goodInfoRequest.getOpenid(), goodInfoRequest, orderNum);
         }
-
-        return CallResult.success();
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("orderNum", orderNum);
+        Object content = redisService.get(ContantUtil.TIPS_CONTENT);
+        jsonObject.put("tips",content.toString());
+        return CallResult.success(jsonObject);
     }
 
 
@@ -208,7 +211,7 @@ public class GoodInfoController extends BaseController {
         return false;
     }
 
-    public void insertGoodOrder(Double score, Integer goodId, Integer userId, String openid, GoodInfoRequest goodInfoRequest) {
+    public void insertGoodOrder(Double score, Integer goodId, Integer userId, String openid, GoodInfoRequest goodInfoRequest, String orderNum) {
 
         //减少积分
         AccountUser accountUser = this.accountUserService.selectByUserId(userId);
@@ -257,7 +260,7 @@ public class GoodInfoController extends BaseController {
         goodOrder.setExchangeStatus("1");
         goodOrder.setExchangeTime(new Date());
         goodOrder.setGoodId(goodId);
-        goodOrder.setOrderNum(getOrderNum());
+        goodOrder.setOrderNum(orderNum);
         goodOrder.setStatus("1");
         goodOrder.setUserId(userId);
         goodOrder.setScore(score);
@@ -274,7 +277,7 @@ public class GoodInfoController extends BaseController {
         signed.setScoreCount(accountUser.getBalance());
         signed.setStatus("1");
         signed.setScore(-score);
-        signed.setRemark(goodOrder.getOrderNum());
+        signed.setRemark(orderNum);
         this.accountDetailService.insert(signed);
         logger.info("商品兑换，用户id{}，商品id:{},消耗积分{},插入到流水表", userId, goodId, -score);
     }

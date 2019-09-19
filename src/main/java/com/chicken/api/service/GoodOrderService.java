@@ -52,4 +52,7 @@ public class GoodOrderService {
         return result;
     }
 
+    public List<Map> selectByGoodOrderDetail(GoodOrder record){
+        return goodOrderDao.selectByGoodOrderDetail(record);
+    }
 }
