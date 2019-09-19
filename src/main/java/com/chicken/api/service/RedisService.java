@@ -119,4 +119,29 @@ public class RedisService {
     public void remove(String key, String value) {
         redisTemplate.opsForZSet().remove(key, value);
     }
+
+    /**
+     * 初始化0
+     *两次放入队列，保证成功率
+     * @param key
+     */
+    public long leftPush(String key,String value) {
+        Long listCnt;
+        try {
+            listCnt = redisTemplate.opsForList().leftPush(key, value);
+        } catch (Exception e) {
+            logger.warn(e.getMessage());
+            listCnt = redisTemplate.opsForList().leftPush(key, value);
+        }
+        return listCnt;
+    }
+
+    /**
+     * 取数据
+     * @param key
+     * @return
+     */
+    public Object rightPop(String key){
+        return redisTemplate.opsForList().rightPop(key);
+    }
 }

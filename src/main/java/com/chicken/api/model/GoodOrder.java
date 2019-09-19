@@ -27,6 +27,10 @@ public class GoodOrder {
 
     private String expressNum;
 
+    private Integer addressId;
+
+    private Double score;
+
     public Integer getId() {
         return id;
     }
@@ -121,5 +125,21 @@ public class GoodOrder {
 
     public void setExpressNum(String expressNum) {
         this.expressNum = expressNum;
+    }
+
+    public Integer getAddressId() {
+        return addressId;
+    }
+
+    public void setAddressId(Integer addressId) {
+        this.addressId = addressId;
+    }
+
+    public Double getScore() {
+        return score;
+    }
+
+    public void setScore(Double score) {
+        this.score = score;
     }
 }

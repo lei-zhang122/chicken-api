@@ -45,7 +45,7 @@ public class WechatMsgPushController {
 
         String[] formids = request.getFormId().split(",");
         for (int i = 0; i < formids.length; i++) {
-
+            redisService.leftPush(ContantUtil.FROMID_INFO.concat(request.getOpenid()),formids[i]);
         }
 
         return CallResult.success();

@@ -120,6 +120,7 @@ public class SignedController extends BaseController{
         logger.info("now{}, userId{}, score{}", now, userId, score);
         redisService.setByTime(ContantUtil.SIGNED_KEY.concat(now).concat(":").concat(userId), score, 2, TimeUnit.DAYS);
         redisService.increment(ContantUtil.TOTAL_KEY.concat(userId), 1);
+        redisService.increment(ContantUtil.USER_TOTAL_KEY.concat(userId), 1);
     }
 
     public void insertDetail(String score, String userId,String openid) {

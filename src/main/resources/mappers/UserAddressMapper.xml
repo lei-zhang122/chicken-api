@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.chicken.api.dao.UserAddressDao" >
+  <resultMap id="BaseResultMap" type="com.chicken.api.model.UserAddress" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="user_id" property="userId" jdbcType="INTEGER" />
+    <result column="user_address" property="userAddress" jdbcType="VARCHAR" />
+    <result column="contact" property="contact" jdbcType="VARCHAR" />
+    <result column="phone" property="phone" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="CHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="province_name" property="provinceName" jdbcType="VARCHAR" />
+    <result column="city_name" property="cityName" jdbcType="VARCHAR" />
+    <result column="county_name" property="countyName" jdbcType="VARCHAR" />
+    <result column="national_code" property="nationalCode" jdbcType="VARCHAR" />
+    <result column="postal_code" property="postalCode" jdbcType="VARCHAR" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from t_user_address
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.chicken.api.model.UserAddress" useGeneratedKeys="true" keyProperty="id">
+    insert into t_user_address (id, user_id, user_address,
+      contact, phone, status,
+      create_time,province_name,city_name,county_name,national_code,postal_code)
+    values (#{id,jdbcType=INTEGER}, #{userId,jdbcType=INTEGER}, #{userAddress,jdbcType=VARCHAR},
+      #{contact,jdbcType=VARCHAR}, #{phone,jdbcType=VARCHAR}, #{status,jdbcType=CHAR},
+      #{createTime,jdbcType=TIMESTAMP}, #{provinceName,jdbcType=VARCHAR},
+      #{cityName,jdbcType=VARCHAR}, #{countyName,jdbcType=VARCHAR}, #{nationalCode,jdbcType=VARCHAR}, #{postalCode,jdbcType=VARCHAR})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="com.chicken.api.model.UserAddress" >
+    update t_user_address
+    set user_id = #{userId,jdbcType=INTEGER},
+      user_address = #{userAddress,jdbcType=VARCHAR},
+      contact = #{contact,jdbcType=VARCHAR},
+      phone = #{phone,jdbcType=VARCHAR},
+      status = #{status,jdbcType=CHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      province_name = #{provinceName,jdbcType=VARCHAR},
+      city_name = #{cityName,jdbcType=VARCHAR},
+      county_name = #{countyName,jdbcType=VARCHAR},
+      national_code = #{nationalCode,jdbcType=VARCHAR},
+      postal_code = #{postalCode,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select id, user_id, user_address, contact, phone, status, create_time,province_name,city_name,county_name,national_code,postal_code
+    from t_user_address
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap" >
+    select id, user_id, user_address, contact, phone, status, create_time,province_name,city_name,county_name,national_code,postal_code
+    from t_user_address
+  </select>
+  <select id="selectByUserAddress" resultMap="BaseResultMap" parameterType="com.chicken.api.model.UserAddress" >
+    select id, user_id, user_address, contact, phone, status, create_time,province_name,city_name,county_name,national_code,postal_code
+    from t_user_address
+    WHERE 1=1
+    <if test="contact != null and contact !=''" >
+      AND contact = #{contact}
+    </if>
+    <if test="phone != null and phone !=''" >
+      AND phone = #{phone}
+    </if>
+    <if test="userAddress != null and userAddress !=''" >
+      AND user_address = #{userAddress}
+    </if>
+    <if test="countyName != null and countyName !=''" >
+      AND county_name = #{countyName}
+    </if>
+    <if test="status != null" >
+      AND status = #{status}
+    </if>
+    ORDER BY status DESC,id DESC
+  </select>
+</mapper>

@@ -29,7 +29,7 @@ import java.util.Set;
  */
 @RestController
 @RequestMapping("/mp")
-public class UserController extends BaseController{
+public class UserController extends BaseController {
 
     private Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -41,34 +41,6 @@ public class UserController extends BaseController{
 
     @Autowired
     HttpServletRequest request;
-
-    /**
-     * 获取大力丸排行榜
-     *
-     * @return
-     */
-    @RequestMapping(value = "/integralTopTen", method = RequestMethod.GET)
-    @ResponseBody
-    public Object integralTopTen() {
-
-        Set<Object> userList = redisService.revRange(ContantUtil.USER_RANKING_LIST, 0, 9);
-        Iterator<Object> it = userList.iterator();
-        JSONArray jsonArray = new JSONArray();
-        while (it.hasNext()) {
-            String str = it.next().toString();
-            JSONObject jsonObject = new JSONObject();
-            Object userInfo = redisService.get(ContantUtil.USER_INFO.concat(str));
-            if (null != userInfo) {
-                JSONObject json = JSON.parseObject(userInfo.toString());
-                jsonObject.put("nickName", json.getString("nickName"));
-                jsonObject.put("avatar",json.getString("avatar"));
-                jsonObject.put("score", redisService.score(ContantUtil.USER_RANKING_LIST, str));
-                jsonArray.add(jsonObject);
-            }
-        }
-
-        return CallResult.success(jsonArray.toArray());
-    }
 
 
     /**
@@ -105,8 +77,13 @@ public class UserController extends BaseController{
             gainScore = Double.valueOf(gainScoreObj.toString());
         }
 
+        //每天最大分值
+        Object maxScore = redisService.get(ContantUtil.MAX_SOCRE_DAY);
+
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("score", gainScore);
+        jsonObject.put("maxScore", maxScore);
+        jsonObject.put("differentScore", Double.valueOf(maxScore.toString()) - gainScore);
 
         return CallResult.success(jsonObject);
     }

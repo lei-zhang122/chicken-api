@@ -18,6 +18,9 @@ public class ContantUtil {
     //连续打卡天数
     public static String TOTAL_KEY = "total:id:";
 
+    //用户一共打卡天数
+    public static String USER_TOTAL_KEY = "user:total:id:";
+
     //打卡
     public static String SIGNED_KEY = "signed:id:";
 
@@ -58,5 +61,9 @@ public class ContantUtil {
     public static String DINING_TEMPLATE="qKfOCgoTzPMg7rHJZiURzRbqWZm29CSTm9SPw_yWpNE";
 
     //fromid
-    public static String FROMID_INFO="openid:fromid:";
+    public static String FROMID_INFO="fromid:list:";
+
+    //订单号
+    public static String ORDER_NUM="order:num";
+
 }

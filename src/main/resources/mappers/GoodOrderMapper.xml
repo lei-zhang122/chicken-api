@@ -14,20 +14,22 @@
     <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
     <result column="modify_user" property="modifyUser" jdbcType="INTEGER" />
     <result column="modify_time" property="modifyTime" jdbcType="TIMESTAMP" />
+    <result column="address_id" property="addressId" jdbcType="INTEGER" />
+    <result column="score" property="score" jdbcType="DOUBLE" />
   </resultMap>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
     delete from t_good_order
     where id = #{id,jdbcType=INTEGER}
   </delete>
   <insert id="insert" parameterType="com.chicken.api.model.GoodOrder" >
-    insert into t_good_order (id, good_id, user_id, 
-      exchange_time, exchange_status, order_num, 
-      express_name, status, create_time, 
-      modify_user, modify_time,express_num)
-    values (#{id,jdbcType=INTEGER}, #{goodId,jdbcType=INTEGER}, #{userId,jdbcType=INTEGER}, 
-      #{exchangeTime,jdbcType=TIMESTAMP}, #{exchangeStatus,jdbcType=CHAR}, #{orderNum,jdbcType=VARCHAR}, 
-      #{expressName,jdbcType=VARCHAR}, #{status,jdbcType=CHAR}, #{createTime,jdbcType=TIMESTAMP}, 
-      #{modifyUser,jdbcType=INTEGER}, #{modifyTime,jdbcType=TIMESTAMP}, #{expressNum,jdbcType=VARCHAR})
+    insert into t_good_order (id, good_id, user_id,
+      exchange_time, exchange_status, order_num,
+      express_name, status, create_time,
+      modify_user, modify_time,express_num,address_id,score)
+    values (#{id,jdbcType=INTEGER}, #{goodId,jdbcType=INTEGER}, #{userId,jdbcType=INTEGER},
+      #{exchangeTime,jdbcType=TIMESTAMP}, #{exchangeStatus,jdbcType=CHAR}, #{orderNum,jdbcType=VARCHAR},
+      #{expressName,jdbcType=VARCHAR}, #{status,jdbcType=CHAR}, #{createTime,jdbcType=TIMESTAMP},
+      #{modifyUser,jdbcType=INTEGER}, #{modifyTime,jdbcType=TIMESTAMP}, #{expressNum,jdbcType=VARCHAR}, #{addressId,jdbcType=INTEGER}, #{score,jdbcType=DOUBLE})
   </insert>
   <update id="updateByPrimaryKey" parameterType="com.chicken.api.model.GoodOrder" >
     update t_good_order
@@ -41,7 +43,9 @@
       create_time = #{createTime,jdbcType=TIMESTAMP},
       modify_user = #{modifyUser,jdbcType=INTEGER},
       modify_time = #{modifyTime,jdbcType=TIMESTAMP},
-      express_num = #{expressNum,jdbcType=VARCHAR}
+      express_num = #{expressNum,jdbcType=VARCHAR},
+      address_id = #{addressId,jdbcType=INTEGER},
+      score = #{score,jdbcType=DOUBLE}
     where id = #{id,jdbcType=INTEGER}
   </update>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >

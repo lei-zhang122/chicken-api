@@ -2,10 +2,7 @@ package com.chicken.api.controller;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.chicken.api.model.AccountDetail;
-import com.chicken.api.model.AccountUser;
-import com.chicken.api.model.GoodInfo;
-import com.chicken.api.model.GoodOrder;
+import com.chicken.api.model.*;
 import com.chicken.api.service.*;
 import com.chicken.api.util.CallResult;
 import com.chicken.api.util.CodeEnum;
@@ -18,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -26,7 +24,7 @@ import java.util.*;
  */
 @RestController
 @RequestMapping("/mp")
-public class GoodInfoController extends BaseController{
+public class GoodInfoController extends BaseController {
 
     private Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -44,6 +42,9 @@ public class GoodInfoController extends BaseController{
 
     @Autowired
     AccountDetailService accountDetailService;
+
+    @Autowired
+    UserAddressService userAddressService;
 
     @Autowired
     HttpServletRequest request;
@@ -126,7 +127,8 @@ public class GoodInfoController extends BaseController{
         }
 
         if (StringUtils.isBlank(goodInfoRequest.getGoodId()) || StringUtils.isBlank(goodInfoRequest.getOpenid())
-                || StringUtils.isBlank(goodInfoRequest.getScore())) {
+                || StringUtils.isBlank(goodInfoRequest.getScore()) || StringUtils.isBlank(goodInfoRequest.getTelNumber())
+                || StringUtils.isBlank(goodInfoRequest.getUserName()) || StringUtils.isBlank(goodInfoRequest.getDetailInfo())) {
             return CallResult.fail(CodeEnum.LACK_PARAM.getCode(), CodeEnum.LACK_PARAM.getMsg());
         }
 
@@ -158,7 +160,7 @@ public class GoodInfoController extends BaseController{
                 return CallResult.fail(CodeEnum.GOOD_NO_THOUGH.getCode(), CodeEnum.GOOD_NO_THOUGH.getMsg());
             }
 
-            insertGoodOrder(Double.valueOf(goodInfoRequest.getScore()), Integer.valueOf(goodInfoRequest.getGoodId()), Integer.valueOf(goodInfoRequest.getUserId()), goodInfoRequest.getOpenid());
+            insertGoodOrder(Double.valueOf(goodInfoRequest.getScore()), Integer.valueOf(goodInfoRequest.getGoodId()), Integer.valueOf(goodInfoRequest.getUserId()), goodInfoRequest.getOpenid(), goodInfoRequest);
         }
 
         return CallResult.success();
@@ -206,7 +208,7 @@ public class GoodInfoController extends BaseController{
         return false;
     }
 
-    public void insertGoodOrder(Double score, Integer goodId, Integer userId, String openid) {
+    public void insertGoodOrder(Double score, Integer goodId, Integer userId, String openid, GoodInfoRequest goodInfoRequest) {
 
         //减少积分
         AccountUser accountUser = this.accountUserService.selectByUserId(userId);
@@ -219,7 +221,7 @@ public class GoodInfoController extends BaseController{
             redisService.incrScore(ContantUtil.USER_RANKING_LIST, accountUser.getUserId().toString(), -score);
 
             //修改自己排行榜的分
-            redisService.incrScore(ContantUtil.FRIEND_RANKING_LIST.concat(openid),accountUser.getUserId().toString(),-score);
+            redisService.incrScore(ContantUtil.FRIEND_RANKING_LIST.concat(openid), accountUser.getUserId().toString(), -score);
 
             //修改好友排行榜分值
             Object myFriend = redisService.get(ContantUtil.USER_OWNER_SET.concat(openid));
@@ -228,16 +230,38 @@ public class GoodInfoController extends BaseController{
             }
         }
 
+        Integer addressId = 0;
+        //判断地址是否存在
+        UserAddress userAddress = new UserAddress();
+        userAddress.setContact(goodInfoRequest.getUserName());
+        userAddress.setPhone(goodInfoRequest.getTelNumber());
+        userAddress.setCountyName(goodInfoRequest.getCountyName());
+        userAddress.setUserAddress(goodInfoRequest.getDetailInfo());
+        List<UserAddress> userAddressList = this.userAddressService.selectByUserAddress(userAddress);
+        if (null != userAddressList && userAddressList.size() > 0) {
+            addressId = userAddressList.get(0).getId();
+        } else {
+            userAddress.setCityName(goodInfoRequest.getCityName());
+            userAddress.setPostalCode(goodInfoRequest.getPostalCode());
+            userAddress.setNationalCode(goodInfoRequest.getNationalCode());
+            userAddress.setProvinceName(goodInfoRequest.getProvinceName());
+            userAddress.setUserId(userId);
+            userAddressService.insert(userAddress);
+            logger.info("商品兑换，用户id{}，商品id:{},消耗积分{},插入到用户地址表{}", userId, goodId, score, userAddress.getId());
+            addressId = userAddress.getId();
+        }
+
         //记录订单
         GoodOrder goodOrder = new GoodOrder();
         goodOrder.setCreateTime(new Date());
         goodOrder.setExchangeStatus("1");
         goodOrder.setExchangeTime(new Date());
         goodOrder.setGoodId(goodId);
-        UUID uuid = UUID.randomUUID();
-        goodOrder.setOrderNum(uuid.toString().replace("-", ""));
+        goodOrder.setOrderNum(getOrderNum());
         goodOrder.setStatus("1");
         goodOrder.setUserId(userId);
+        goodOrder.setScore(score);
+        goodOrder.setAddressId(addressId);
         this.goodOrderService.insert(goodOrder);
         logger.info("商品兑换，用户id{}，商品id:{},消耗积分{},插入到订单表", userId, goodId, score);
 
@@ -250,9 +274,15 @@ public class GoodInfoController extends BaseController{
         signed.setScoreCount(accountUser.getBalance());
         signed.setStatus("1");
         signed.setScore(-score);
-        signed.setRemark(uuid.toString().replace("-", ""));
+        signed.setRemark(goodOrder.getOrderNum());
         this.accountDetailService.insert(signed);
         logger.info("商品兑换，用户id{}，商品id:{},消耗积分{},插入到流水表", userId, goodId, -score);
+    }
+
+
+    private String getOrderNum() {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
+        return sdf.format(new Date()) + (int) ((Math.random() * 9 + 1) * 100000);
     }
 
     @RequestMapping(value = "/test", method = RequestMethod.GET)
