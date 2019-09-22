@@ -25,7 +25,7 @@ public class ContantUtil {
     public static String SIGNED_KEY = "signed:id:";
 
     //每天最多获得积分
-    public static String MAX_SOCRE_DAY = "max:score:day";
+    public static String MAX_SOCRE_DAY = "d:max:score:day";
 
     //用户已经获得积分
     public static String GAIN_SCORE = "gain:score:";
@@ -46,10 +46,10 @@ public class ContantUtil {
     public static String OPEN_ID = "openid:";
 
     //用户可一天邀请几次
-    public static String USER_INVITE_ONE_DAY = "invite:count:day";
+    public static String USER_INVITE_ONE_DAY = "d:invite:count:day";
 
     //用户邀请的分
-    public static String INVITE_SCORE = "invite:score";
+    public static String INVITE_SCORE = "d:invite:score";
 
     //用户已经邀请次数
     public static String USER_INVITE_COUNT = "user:invite:count:";
@@ -67,5 +67,5 @@ public class ContantUtil {
     public static String ORDER_NUM = "order:num";
 
     //温馨提示
-    public static String TIPS_CONTENT = "tips:content";
+    public static String TIPS_CONTENT = "d:tips:content";
 }

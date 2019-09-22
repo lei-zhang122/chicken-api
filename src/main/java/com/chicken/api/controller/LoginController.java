@@ -80,6 +80,8 @@ public class LoginController extends BaseController {
             wechatUser.setCreateTime(new Date());
             wechatUser.setOpenid(openid);
             wechatUser.setStatus("1");
+            wechatUser.setAvatar(userRequest.getAvatar());
+            wechatUser.setNickName(userRequest.getNickName());
             wechatUser.setRegSource(userRequest.getRegSource());
             wechatUser.setInviteNum(userRequest.getOpenid());
             wechatUserService.insert(wechatUser);
@@ -143,6 +145,7 @@ public class LoginController extends BaseController {
             accountUser.setBalance(0.0);
             accountUser.setAttentCount(0.0);
             accountUser.setCreateTime(new Date());
+            accountUser.setGoodsCount(0);
             accountUserService.insert(accountUser);
             logger.info("注册用户，插入到账户表，用户id={}", wechatUser.getId());
 
@@ -159,6 +162,7 @@ public class LoginController extends BaseController {
             jsonObject.put("nickName", wechatUser.getNickName());
             jsonObject.put("openid", wechatUser.getOpenid());
             jsonObject.put("sessionId", sessionId);
+            jsonObject.put("avatar", wechatUser.getAvatar());
 
             return returnResult(wechatUser.getId(), openid, jsonObject);
 
@@ -176,10 +180,27 @@ public class LoginController extends BaseController {
                 }
             }
 
+            int i = 0;
+            //更新用户信息
+            if (StringUtils.isNotBlank(userRequest.getAvatar())) {
+                user.setAvatar(userRequest.getAvatar());
+                i++;
+            }
+
+            if (StringUtils.isNotBlank(userRequest.getNickName())) {
+                user.setNickName(userRequest.getNickName());
+                i++;
+            }
+
+            if (i != 0) {
+                this.wechatUserService.updateByPrimaryKey(user);
+            }
+
             //插入到缓存
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("nickName", user.getNickName());
             jsonObject.put("inviteNum", user.getInviteNum());
+            jsonObject.put("avatar",user.getAvatar());
             jsonObject.put("openid", user.getOpenid());
             jsonObject.put("sessionId", sessionId);
             return returnResult(user.getId(), openid, jsonObject);

@@ -17,6 +17,8 @@ public class AccountUser {
 
     private Date createTime;
 
+    private Integer goodsCount;
+
     public Integer getId() {
         return id;
     }
@@ -71,5 +73,13 @@ public class AccountUser {
 
     public void setCreateTime(Date createTime) {
         this.createTime = createTime;
+    }
+
+    public Integer getGoodsCount() {
+        return goodsCount;
+    }
+
+    public void setGoodsCount(Integer goodsCount) {
+        this.goodsCount = goodsCount;
     }
 }

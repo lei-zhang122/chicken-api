@@ -27,7 +27,7 @@ import java.util.concurrent.TimeUnit;
  */
 @RestController
 @RequestMapping("/mp")
-public class SignedController extends BaseController{
+public class SignedController extends BaseController {
 
     private Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -82,7 +82,7 @@ public class SignedController extends BaseController{
             //获取第一天的分值，打卡
             Object oneday = redisService.get("d:oneday");
             insertCache(now, signedRequest.getUserId(), oneday.toString());
-            insertDetail(oneday.toString(), signedRequest.getUserId(),signedRequest.getOpenid());
+            insertDetail(oneday.toString(), signedRequest.getUserId(), signedRequest.getOpenid());
             return returnResult(oneday.toString());
         }
 
@@ -92,21 +92,40 @@ public class SignedController extends BaseController{
             //获取第二天的积分
             Object twoDay = redisService.get("d:twoday");
             insertCache(now, signedRequest.getUserId(), twoDay.toString());
-            insertDetail(twoDay.toString(), signedRequest.getUserId(),signedRequest.getOpenid());
+            insertDetail(twoDay.toString(), signedRequest.getUserId(), signedRequest.getOpenid());
             return returnResult(twoDay.toString());
         } else if (total.equals("2")) {
             //获取第三天的积分
             Object threeday = redisService.get("d:threeday");
             insertCache(now, signedRequest.getUserId(), threeday.toString());
-            insertDetail(threeday.toString(), signedRequest.getUserId(),signedRequest.getOpenid());
+            insertDetail(threeday.toString(), signedRequest.getUserId(), signedRequest.getOpenid());
             return returnResult(threeday.toString());
-        } else {
-            //获取第三天的积分
+        } else if (total.equals("3")) {
+            //获取第四天的积分
             Object fourday = redisService.get("d:fourday");
             insertCache(now, signedRequest.getUserId(), fourday.toString());
-            insertDetail(fourday.toString(), signedRequest.getUserId(),signedRequest.getOpenid());
+            insertDetail(fourday.toString(), signedRequest.getUserId(), signedRequest.getOpenid());
             return returnResult(fourday.toString());
+        } else if (total.equals("4")) {
+            //获取第五天的积分
+            Object fiveday = redisService.get("d:fiveday");
+            insertCache(now, signedRequest.getUserId(), fiveday.toString());
+            insertDetail(fiveday.toString(), signedRequest.getUserId(), signedRequest.getOpenid());
+            return returnResult(fiveday.toString());
+        } else if (total.equals("5")) {
+            //获取第六天的积分
+            Object sixday = redisService.get("d:sixday");
+            insertCache(now, signedRequest.getUserId(), sixday.toString());
+            insertDetail(sixday.toString(), signedRequest.getUserId(), signedRequest.getOpenid());
+            return returnResult(sixday.toString());
+        } else if (total.equals("6")) {
+            //获取第六天的积分
+            Object sevenday = redisService.get("d:sevenday");
+            insertCache(now, signedRequest.getUserId(), sevenday.toString());
+            insertDetail(sevenday.toString(), signedRequest.getUserId(), signedRequest.getOpenid());
+            return returnResult(sevenday.toString());
         }
+        return returnResult("2");
     }
 
     /**
@@ -123,7 +142,7 @@ public class SignedController extends BaseController{
         redisService.increment(ContantUtil.USER_TOTAL_KEY.concat(userId), 1);
     }
 
-    public void insertDetail(String score, String userId,String openid) {
+    public void insertDetail(String score, String userId, String openid) {
         //查询用户账户信息
         AccountUser accountUser = this.accountUserService.selectByUserId(Integer.valueOf(userId));
         if (null != accountUser) {
@@ -136,12 +155,12 @@ public class SignedController extends BaseController{
             redisService.incrScore(ContantUtil.USER_RANKING_LIST, accountUser.getUserId().toString(), Double.valueOf(score));
 
             //修改自己排行榜的分
-            redisService.incrScore(ContantUtil.FRIEND_RANKING_LIST.concat(openid),accountUser.getUserId().toString(),Double.valueOf(score));
+            redisService.incrScore(ContantUtil.FRIEND_RANKING_LIST.concat(openid), accountUser.getUserId().toString(), Double.valueOf(score));
 
             //修改好友排行榜分值
             Object myFriend = redisService.get(ContantUtil.USER_OWNER_SET.concat(openid));
-            if(null != myFriend){
-                redisService.incrScore(myFriend.toString(),accountUser.getUserId().toString(),Double.valueOf(score));
+            if (null != myFriend) {
+                redisService.incrScore(myFriend.toString(), accountUser.getUserId().toString(), Double.valueOf(score));
             }
         }
 

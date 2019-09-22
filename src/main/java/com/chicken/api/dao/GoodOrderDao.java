@@ -21,4 +21,6 @@ public interface GoodOrderDao {
     List<Map> selectByGoodOrder(GoodOrder goodOrder);
 
     List<Map> selectByGoodOrderDetail(GoodOrder goodOrder);
+
+    List<Map> selectTopTen();
 }

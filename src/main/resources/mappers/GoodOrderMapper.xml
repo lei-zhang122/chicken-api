@@ -106,4 +106,11 @@
       AND t.status = #{status}
     </if>
   </select>
+
+  <select id="selectTopTen" resultType="java.util.Map">
+    select o.good_name,u.nick_name from t_good_order t
+    left join t_good_info o on o.id = t.good_id
+    left join t_wechat_user u on u.id = t.user_id
+    limit 10
+  </select>
 </mapper>

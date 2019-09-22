@@ -25,6 +25,7 @@ public class WechatUtil {
 
     private final static String SECRET = "7a49f8e8a62cec0d903434996ad4e78e";
 
+
     /**
      * 获得openid
      * @param code

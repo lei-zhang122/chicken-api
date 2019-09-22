@@ -55,4 +55,8 @@ public class GoodOrderService {
     public List<Map> selectByGoodOrderDetail(GoodOrder record){
         return goodOrderDao.selectByGoodOrderDetail(record);
     }
+
+    public List<Map> selectTopTen(){
+        return goodOrderDao.selectTopTen();
+    }
 }

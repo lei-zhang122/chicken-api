@@ -12,6 +12,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -162,13 +163,36 @@ public class GoodInfoController extends BaseController {
 
             insertGoodOrder(Double.valueOf(goodInfoRequest.getScore()), Integer.valueOf(goodInfoRequest.getGoodId()), Integer.valueOf(goodInfoRequest.getUserId()), goodInfoRequest.getOpenid(), goodInfoRequest, orderNum);
         }
+
+        //发送push消息
+        pushMsg(goodInfoRequest.getOpenid(), goodInfoRequest.getGoodId(), orderNum);
+
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("orderNum", orderNum);
         Object content = redisService.get(ContantUtil.TIPS_CONTENT);
-        jsonObject.put("tips",content.toString());
+        jsonObject.put("tips", content.toString());
         return CallResult.success(jsonObject);
     }
 
+
+    /**
+     * 消息推送
+     * @param openid
+     * @param goodId
+     * @param orderNum
+     */
+    @Async
+    public void pushMsg(String openid, String goodId, String orderNum) {
+
+        //获取FormId
+        Object formId = redisService.rightPop(ContantUtil.FROMID_INFO.concat(openid));
+        if (null != formId) {
+            //查询商品信息
+            GoodInfo goodInfo = this.goodInfoService.selectByPrimaryKey(Integer.valueOf(goodId));
+            StringBuffer stringBuffer = new StringBuffer("您好，您已成功兑换奖品" + goodInfo.getGoodName() + "，您的兑换单号是" + orderNum + "，我们会在7天内为您发货，请登录揍小鸡小程序查看订单详情。");
+            redisService.pushNoticeUtil(openid, formId.toString(), "", stringBuffer.toString());
+        }
+    }
 
     /**
      * 减少库存
@@ -218,6 +242,7 @@ public class GoodInfoController extends BaseController {
         if (null != accountUser) {
             accountUser.setBalance(accountUser.getBalance() - score);
             accountUser.setConsumeCount(accountUser.getConsumeCount() + score);
+            accountUser.setGoodsCount(accountUser.getGoodsCount() + 1);
             accountUserService.updateByPrimaryKey(accountUser);
             logger.info("商品兑换，用户id{}，商品id:{},消耗积分{}", userId, goodId, score);
             //修改排行榜分值

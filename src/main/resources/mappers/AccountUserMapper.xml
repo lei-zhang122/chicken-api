@@ -9,6 +9,7 @@
     <result column="balance" property="balance" jdbcType="DOUBLE" />
     <result column="status" property="status" jdbcType="CHAR" />
     <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="goods_count" property="goodsCount" jdbcType="INTEGER" />
   </resultMap>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
     delete from t_account_user
@@ -17,10 +18,10 @@
   <insert id="insert" parameterType="com.chicken.api.model.AccountUser" >
     insert into t_account_user (id, user_id, attent_count, 
       consume_count, balance, status, 
-      create_time)
-    values (#{id,jdbcType=INTEGER}, #{userId,jdbcType=INTEGER}, #{attentCount,jdbcType=DOUBLE}, 
-      #{consumeCount,jdbcType=DOUBLE}, #{balance,jdbcType=DOUBLE}, #{status,jdbcType=CHAR}, 
-      #{createTime,jdbcType=TIMESTAMP})
+      create_time,goods_count)
+    values (#{id,jdbcType=INTEGER}, #{userId,jdbcType=INTEGER}, #{attentCount,jdbcType=DOUBLE},
+      #{consumeCount,jdbcType=DOUBLE}, #{balance,jdbcType=DOUBLE}, #{status,jdbcType=CHAR},
+      #{createTime,jdbcType=TIMESTAMP}, #{goodsCount,jdbcType=INTEGER})
   </insert>
   <update id="updateByPrimaryKey" parameterType="com.chicken.api.model.AccountUser" >
     update t_account_user
@@ -29,21 +30,22 @@
       consume_count = #{consumeCount,jdbcType=DOUBLE},
       balance = #{balance,jdbcType=DOUBLE},
       status = #{status,jdbcType=CHAR},
-      create_time = #{createTime,jdbcType=TIMESTAMP}
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      goods_count = #{goodsCount,jdbcType=INTEGER}
     where id = #{id,jdbcType=INTEGER}
   </update>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
-    select id, user_id, attent_count, consume_count, balance, status, create_time
+    select id, user_id, attent_count, consume_count, balance, status, create_time,goods_count
     from t_account_user
     where id = #{id,jdbcType=INTEGER}
   </select>
   <select id="selectByUserId" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
-    select id, user_id, attent_count, consume_count, balance, status, create_time
+    select id, user_id, attent_count, consume_count, balance, status, create_time,goods_count
     from t_account_user
     where user_id = #{userId,jdbcType=INTEGER}
   </select>
   <select id="selectAll" resultMap="BaseResultMap" >
-    select id, user_id, attent_count, consume_count, balance, status, create_time
+    select id, user_id, attent_count, consume_count, balance, status, create_time,goods_count
     from t_account_user where status=1
   </select>
 </mapper>
