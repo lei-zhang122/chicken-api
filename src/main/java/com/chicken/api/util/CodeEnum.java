@@ -27,7 +27,8 @@ public enum CodeEnum {
 	LOGIN_OUT_TIME(1006,"登录超时"),
 	OPENID_IS_NULL(1007,"openid is null"),
 	FORMID_IS_NULL(1009,"formId is null"),
-	PUSH_FAIL(1008,"push消息失败");
+	PUSH_FAIL(1008,"push消息失败"),
+	DECRYPT_EXCEPTION(1010,"解密失败");
 
 
 	 private static final Map<Integer, CodeEnum> codeMap = new HashMap<Integer, CodeEnum>((int)(CodeEnum.values().length/0.75)+1);

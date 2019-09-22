@@ -21,4 +21,6 @@ public interface AccountHitDao {
     List<AccountHit> selectByAccountHit(AccountHit accountHit);
 
     List<Map> selectHitUserName(AccountHit accountHit);
+
+    Long selectTodayHitScore(AccountHit accountHit);
 }

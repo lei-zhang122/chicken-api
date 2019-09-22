@@ -2,13 +2,16 @@ package com.chicken.api.controller;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.chicken.api.model.AccountHit;
 import com.chicken.api.model.GoodOrder;
+import com.chicken.api.service.AccountHitService;
 import com.chicken.api.service.GoodOrderService;
 import com.chicken.api.service.RedisService;
 import com.chicken.api.util.CallResult;
 import com.chicken.api.util.CodeEnum;
 import com.chicken.api.util.ContantUtil;
 import com.chicken.api.util.DateUtil;
+import com.chicken.api.vo.HitChickenRequest;
 import com.chicken.api.vo.UserRequest;
 import com.github.pagehelper.PageInfo;
 import org.apache.commons.lang3.StringUtils;
@@ -36,6 +39,9 @@ public class UserController extends BaseController {
 
     @Autowired
     GoodOrderService goodOrderService;
+
+    @Autowired
+    AccountHitService accountHitService;
 
     @Autowired
     HttpServletRequest request;
@@ -86,6 +92,58 @@ public class UserController extends BaseController {
         return CallResult.success(jsonObject);
     }
 
+
+    /**
+     * 获取揍某人得分
+     *
+     * @return
+     */
+    @RequestMapping(value = "/hitUserScore", method = RequestMethod.POST)
+    @ResponseBody
+    public Object hitUserScore(@RequestBody HitChickenRequest hitChickenRequest) {
+
+        String sessionId = request.getHeader("sessionId");
+        if (!isLogin(sessionId)) {
+            return CallResult.fail(CodeEnum.LOGIN_OUT_TIME.getCode(), CodeEnum.LOGIN_OUT_TIME.getMsg());
+        }
+
+        if (StringUtils.isBlank(hitChickenRequest.getOpenid()) || StringUtils.isBlank(hitChickenRequest.getHitOpenid())) {
+            return CallResult.fail(CodeEnum.LACK_PARAM.getCode(), CodeEnum.LACK_PARAM.getMsg());
+        }
+
+        Object userId = redisService.get(ContantUtil.OPEN_ID.concat(hitChickenRequest.getOpenid()));
+        if (null == userId) {
+            return CallResult.fail(CodeEnum.NO_FIND_USER.getCode(), CodeEnum.NO_FIND_USER.getMsg());
+        } else {
+            hitChickenRequest.setUserId(userId.toString());
+        }
+
+        Object hitUserId = redisService.get(ContantUtil.OPEN_ID.concat(hitChickenRequest.getHitOpenid()));
+        if (null == hitUserId) {
+            return CallResult.fail(CodeEnum.NO_FIND_USER.getCode(), CodeEnum.NO_FIND_USER.getMsg());
+        } else {
+            hitChickenRequest.setHitUserId(hitUserId.toString());
+        }
+
+        //当期那时间
+        String now = DateUtil.getSpecifiedDay("yyyy-MM-dd", 0);
+
+        //获取
+        AccountHit accountHit = new AccountHit();
+        accountHit.setHitUserId(Integer.valueOf(hitChickenRequest.getHitUserId()));
+        accountHit.setRemark(now);
+        Long score = this.accountHitService.selectTodayHitScore(accountHit);
+        if (null == score) {
+            score = 0L;
+        }
+        //每天最大分值
+        Object maxScore = redisService.get(ContantUtil.MAX_HIT_USER);
+
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("differentScore", Double.valueOf(maxScore.toString()) - score.doubleValue());
+
+        return CallResult.success(jsonObject);
+    }
 
     /**
      * 获取商品兑换记录
@@ -194,7 +252,7 @@ public class UserController extends BaseController {
         List<Map> result = this.goodOrderService.selectByGoodOrderDetail(goodOrder);
         JSONObject returnJson = new JSONObject();
         if (result.size() > 0) {
-            Map m  = result.get(0);
+            Map m = result.get(0);
             JSONObject object = new JSONObject();
             String date = m.get("exchange_time").toString();
             object.put("exchangeTime", DateUtil.currentYYYYMMDDHHmmssWithSymbol(date));

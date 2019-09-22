@@ -18,6 +18,8 @@ public class HitChickenRequest {
 
     private String hitUserId;
 
+    private String data;
+
     public String getUserId() {
         return userId;
     }
@@ -64,5 +66,26 @@ public class HitChickenRequest {
 
     public void setHitUserId(String hitUserId) {
         this.hitUserId = hitUserId;
+    }
+
+    public String getData() {
+        return data;
+    }
+
+    public void setData(String data) {
+        this.data = data;
+    }
+
+    @Override
+    public String toString() {
+        return "HitChickenRequest{" +
+                "userId='" + userId + '\'' +
+                ", score='" + score + '\'' +
+                ", hitCreateTime='" + hitCreateTime + '\'' +
+                ", openid='" + openid + '\'' +
+                ", hitOpenid='" + hitOpenid + '\'' +
+                ", hitUserId='" + hitUserId + '\'' +
+                ", data='" + data + '\'' +
+                '}';
     }
 }

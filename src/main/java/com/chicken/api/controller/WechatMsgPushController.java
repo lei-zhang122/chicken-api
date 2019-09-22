@@ -44,9 +44,14 @@ public class WechatMsgPushController {
         }
 
         String[] formids = request.getFormId().split(",");
-        for (int i = 0; i < formids.length; i++) {
-            redisService.leftPush(ContantUtil.FROMID_INFO.concat(request.getOpenid()), formids[i]);
+        if(null != formids){
+            //删除队列
+            redisService.deleteKey(ContantUtil.FROMID_INFO.concat(request.getOpenid()));
+            for (int i = 0; i < formids.length; i++) {
+                redisService.leftPush(ContantUtil.FROMID_INFO.concat(request.getOpenid()), formids[i]);
+            }
         }
+
 
         return CallResult.success();
     }

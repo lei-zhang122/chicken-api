@@ -30,6 +30,12 @@ public class ContantUtil {
     //用户已经获得积分
     public static String GAIN_SCORE = "gain:score:";
 
+    //用户打某一个用户今日获得分值
+    public static String HIT_USER_SCORE_TODAY = "uo:hit:uo:score";
+
+    //每天打某一用户最多获得积分
+    public static String MAX_HIT_USER = "d:hit:user:s";
+
     //用户排行榜
     public static String USER_RANKING_LIST = "userRankList";
 
@@ -68,4 +74,13 @@ public class ContantUtil {
 
     //温馨提示
     public static String TIPS_CONTENT = "d:tips:content";
+
+    //暴击概率
+    public static String HIT_PROBABILY="d:hit:probability";
+
+    //命中大力丸的概率
+    public static String GAIN_PROBABILY="d:gain:probability";
+
+    //分值list
+    public static String SCORE_LIST="d:scorelist";
 }

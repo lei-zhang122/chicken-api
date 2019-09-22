@@ -64,4 +64,8 @@ public class AccountHitService {
         PageInfo result = new PageInfo(userLists);
         return result;
     }
+
+    public Long selectTodayHitScore(AccountHit accountHit){
+        return accountHitDao.selectTodayHitScore(accountHit);
+    }
 }
