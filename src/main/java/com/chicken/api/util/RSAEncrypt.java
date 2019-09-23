@@ -23,14 +23,16 @@ public class RSAEncrypt {
         genKeyPair();
         //加密字符串
         String message = "df723820";
-        System.out.println("随机生成的公钥为:" + keyMap.get(0));
-        System.out.println("随机生成的私钥为:" + keyMap.get(1));
+        String messageEn = encrypt(message,PUBLIC_KEY_STRING);
+        System.out.println(message + "\t加密后的字符串为:" + messageEn);
+        String messageDe = decrypt(messageEn,PRIVATE_KEY_STRING);
+        System.out.println("还原后的字符串为:" + messageDe);
 
     }
 
-    public static String PUBLIC_KEY_STRING="MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDGVClLfEEc+zsihvyC+JnjMbNuxcIB/21oNIzc92uhzH9kAGV73v/2rxRssJSilGyCuLM6TjR7JY9rlNw72OkrFIA4wFWA9ZsdKsah07MTqEA8ZL8OBpDFcgNmeSs8a5baU7xTI3+mL5Ts5hZac0Ap78S3fpoqSFb/c5XG0LGH2QIDAQAB";
+    public static String PUBLIC_KEY_STRING="MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDIxVuUft54JjljxG6fDO4/iPZ4rYbVYbPQVVxj6FsaYBdAQ3QojTZvxLP6963ymfgZgorAyd5CvXE8LzhwFg6AAsWjrroVcG+//hzCskgiu/zRTOYUQn+e8pJXshn46Q6Ua4xyLWnyuFqLvzO0oQKBTzHt2LEZHJyoFeuDSOCu+wIDAQAB";
 
-    public static String PRIVATE_KEY_STRING="MIICdwIBADANBgkqhkiG9w0BAQEFAASCAmEwggJdAgEAAoGBAMZUKUt8QRz7OyKG/IL4meMxs27FwgH/bWg0jNz3a6HMf2QAZXve//avFGywlKKUbIK4szpONHslj2uU3DvY6SsUgDjAVYD1mx0qxqHTsxOoQDxkvw4GkMVyA2Z5KzxrltpTvFMjf6YvlOzmFlpzQCnvxLd+mipIVv9zlcbQsYfZAgMBAAECgYA45VIHbrj7SHN5f0IXjJwRGmQAZkk264EGgPTcOzqsaw8ssBRtCddifG2elLW/Qlcy1SvNkTvrDCZt1YGsxZh2GjNYOOxk+qiEQyWQLOTm8wCnwnS5uxqmY0A3N2mlU3xyJKdgXlogadFs/Lvmcx7qqY29hdx+7syUu/plVgDwdQJBAP3LwA1qDJc/Vxo7v+YxI3IDe9nmutnx0zY7ZwWm/goNIGW2iBxUrpacX53Kc1eBaook6ntm+lwVEs6YLcfPZucCQQDIDRgdZ4cQI8VcdKuCxLN/gxHl8e9CnqBYsaykWLPK4/B2MTAbAALN9EB1A5IMDdx9FGHs/dPmYcQBf3q4KYM/AkEA9W5hRlek32rof70CQciJP4uw7LMdRQB/wXVGloe8Kdox10ria4tU3t9P9BbA3gGQFxHGFBosyHm0m0c9FnoyRwJAVeHBM4ZpZlVk+g8gPlCBmsFDIstdYuVEgy8rpZZrATQf3C27sCuuCIrOTS3OOhyNRqlEbQB/Qs0/30DCB2PS8wJBALKnLyiEDKZ3XbTRNIY4DK/2cfbNpqpZblA+40qOI1KCWY7fbxnWDAbUjro5LTHfRdpnh4epSZEkezWpiU4m9O4=";
+    public static String PRIVATE_KEY_STRING="MIICeAIBADANBgkqhkiG9w0BAQEFAASCAmIwggJeAgEAAoGBAMjFW5R+3ngmOWPEbp8M7j+I9nithtVhs9BVXGPoWxpgF0BDdCiNNm/Es/r3rfKZ+BmCisDJ3kK9cTwvOHAWDoACxaOuuhVwb7/+HMKySCK7/NFM5hRCf57ykleyGfjpDpRrjHItafK4Wou/M7ShAoFPMe3YsRkcnKgV64NI4K77AgMBAAECgYEAhlh59Z4HpAJ/+KCjHU77xgwSUaJcTUD5n/jewAPlonqWVGxOuCv2N0g63z8JaQNan0dZLbRnQ+Wcdhdq/qXjwNirqn24nVRKKCsl4g4uKxKiBHLJ4AWFP49G6QeZgXhPsuzVHLY87rLBsC5qwgNlHiB2V9g4ylSRFpk9drRk/5ECQQD2FtFL9PZt5ENezWy80UKKq7Zf3f+To8l64i3LLVgfThYtg0/vPrqebFJqgptODkqBVPZzhyHni88Tg7KqNdh/AkEA0NtPEV1eujV8PbeoUI1dyeptkbr5QwIlLpxlXEGI7N0i+ZWWgd/0ueCR/a71ucsY3yO6Nt5Rxlqsm2hLPoZLhQJBAKRUGlEBdClvuvksbgcsKaYWAgPEZ608Oweez3uUfPryluavgAo/tjiiFure6jxWWLRCewwsWZyYBKCAWidFK5sCQFZzIJRIeKhM8UM+nP3StgqY7YePxBM3dRqJA++e9MVOd2alw2m4wLybtvIxlGa2KXJbgH2rol+fMqkVD2gvAF0CQQDAZlElgl+dpfjlkUDv/Fnv05qpzKR5oAktHYbeERBOcwiX/Ox9AunrOU00WhtZSXj0x5G6QsjHiQtG0S+ZY4WU";
 
     /**
      * 随机生成密钥对
