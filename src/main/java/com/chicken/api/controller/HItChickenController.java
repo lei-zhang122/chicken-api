@@ -50,14 +50,14 @@ public class HItChickenController extends BaseController {
             return CallResult.fail(CodeEnum.LOGIN_OUT_TIME.getCode(), CodeEnum.LOGIN_OUT_TIME.getMsg());
         }
 
-        try {
+        /*try {
             String data = RSAEncrypt.decrypt(hitChickenRequest.getData(), RSAEncrypt.PRIVATE_KEY_STRING);
             JSONObject jsonObject = JSON.parseObject(data);
             hitChickenRequest = jsonObject.toJavaObject(HitChickenRequest.class);
             logger.info("揍小鸡，成功解析数据{}", hitChickenRequest.toString());
         } catch (Exception e) {
             return CallResult.fail(CodeEnum.DECRYPT_EXCEPTION.getCode(), CodeEnum.DECRYPT_EXCEPTION.getMsg());
-        }
+        }*/
 
         if (StringUtils.isBlank(hitChickenRequest.getOpenid()) || StringUtils.isBlank(hitChickenRequest.getScore()) || StringUtils.isBlank(hitChickenRequest.getHitOpenid())) {
             return CallResult.fail(CodeEnum.LACK_PARAM.getCode(), CodeEnum.LACK_PARAM.getMsg());
