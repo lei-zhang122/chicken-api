@@ -76,6 +76,7 @@ public class SignedController extends BaseController {
         //判断缓存打卡天数是否有值，如果存在分值获取
         String yesterday = DateUtil.getSpecifiedDay("yyyy-MM-dd", 1);
         Object yesterDayObj = redisService.get(ContantUtil.SIGNED_KEY.concat(yesterday).concat(":").concat(signedRequest.getUserId()));
+        logger.info("签到打卡，昨日是否打卡={}", yesterday);
         if (null == yesterDayObj) {
             //删除原来的key
             redisService.deleteKey(ContantUtil.TOTAL_KEY.concat(signedRequest.getUserId()));
@@ -88,37 +89,38 @@ public class SignedController extends BaseController {
 
         //获取已经打卡几天
         Object total = redisService.get(ContantUtil.TOTAL_KEY.concat(signedRequest.getUserId()));
-        if (total.equals("1")) {
+        logger.info("签到打卡，已经打卡天数={}", total);
+        if (total.toString().equals("1")) {
             //获取第二天的积分
             Object twoDay = redisService.get("d:twoday");
             insertCache(now, signedRequest.getUserId(), twoDay.toString());
             insertDetail(twoDay.toString(), signedRequest.getUserId(), signedRequest.getOpenid());
             return returnResult(twoDay.toString());
-        } else if (total.equals("2")) {
+        } else if (total.toString().equals("2")) {
             //获取第三天的积分
             Object threeday = redisService.get("d:threeday");
             insertCache(now, signedRequest.getUserId(), threeday.toString());
             insertDetail(threeday.toString(), signedRequest.getUserId(), signedRequest.getOpenid());
             return returnResult(threeday.toString());
-        } else if (total.equals("3")) {
+        } else if (total.toString().equals("3")) {
             //获取第四天的积分
             Object fourday = redisService.get("d:fourday");
             insertCache(now, signedRequest.getUserId(), fourday.toString());
             insertDetail(fourday.toString(), signedRequest.getUserId(), signedRequest.getOpenid());
             return returnResult(fourday.toString());
-        } else if (total.equals("4")) {
+        } else if (total.toString().equals("4")) {
             //获取第五天的积分
             Object fiveday = redisService.get("d:fiveday");
             insertCache(now, signedRequest.getUserId(), fiveday.toString());
             insertDetail(fiveday.toString(), signedRequest.getUserId(), signedRequest.getOpenid());
             return returnResult(fiveday.toString());
-        } else if (total.equals("5")) {
+        } else if (total.toString().equals("5")) {
             //获取第六天的积分
             Object sixday = redisService.get("d:sixday");
             insertCache(now, signedRequest.getUserId(), sixday.toString());
             insertDetail(sixday.toString(), signedRequest.getUserId(), signedRequest.getOpenid());
             return returnResult(sixday.toString());
-        } else if (total.equals("6")) {
+        } else if (total.toString().equals("6")) {
             //获取第六天的积分
             Object sevenday = redisService.get("d:sevenday");
             insertCache(now, signedRequest.getUserId(), sevenday.toString());

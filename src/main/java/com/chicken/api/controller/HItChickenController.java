@@ -76,7 +76,7 @@ public class HItChickenController extends BaseController {
         } else {
             hitChickenRequest.setHitUserId(hitUserId.toString());
         }
-
+        logger.info("被揍用户id{},打人用户id{}", hitChickenRequest.getHitUserId(), hitChickenRequest.getUserId());
         //每天最大分值
         Object maxScore = redisService.get(ContantUtil.MAX_SOCRE_DAY);
 
@@ -174,7 +174,7 @@ public class HItChickenController extends BaseController {
         accountHit.setScoreCount(count);
         accountHit.setHitUserId(hitUserId);
         accountHitService.insert(accountHit);
-        logger.info("用户揍小鸡，用户id{},打卡时间{}", userId, DateUtil.getNow());
+        logger.info("用户揍小鸡，用户id{},时间{}", userId, DateUtil.getNow());
     }
 
     private CallResult returnResult(String isSigned) {

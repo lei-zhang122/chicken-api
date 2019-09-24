@@ -177,6 +177,7 @@ public class GoodInfoController extends BaseController {
 
     /**
      * 消息推送
+     *
      * @param openid
      * @param goodId
      * @param orderNum
@@ -190,6 +191,7 @@ public class GoodInfoController extends BaseController {
             //查询商品信息
             GoodInfo goodInfo = this.goodInfoService.selectByPrimaryKey(Integer.valueOf(goodId));
             StringBuffer stringBuffer = new StringBuffer("您好，您已成功兑换奖品" + goodInfo.getGoodName() + "，您的兑换单号是" + orderNum + "，我们会在7天内为您发货，请登录揍小鸡小程序查看订单详情。");
+            logger.info("推送消息，openid={},消息内容为：{}", openid, stringBuffer.toString());
             redisService.pushNoticeUtil(openid, formId.toString(), "", stringBuffer.toString());
         }
     }
