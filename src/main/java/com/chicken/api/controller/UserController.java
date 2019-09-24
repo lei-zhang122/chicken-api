@@ -130,6 +130,7 @@ public class UserController extends BaseController {
 
         //获取
         AccountHit accountHit = new AccountHit();
+        accountHit.setUserId(Integer.valueOf(hitChickenRequest.getUserId()));
         accountHit.setHitUserId(Integer.valueOf(hitChickenRequest.getHitUserId()));
         accountHit.setRemark(now);
         Long score = this.accountHitService.selectTodayHitScore(accountHit);

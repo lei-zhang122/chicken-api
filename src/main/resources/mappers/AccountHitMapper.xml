@@ -79,6 +79,6 @@
   </select>
   <select id="selectTodayHitScore" resultType="java.lang.Long" parameterType="com.chicken.api.model.AccountHit" >
     select sum(score) as zong from t_account_hit t
-    where t.hit_user_id =#{hitUserId} and DATE_FORMAT(t.signed_time,'%Y-%d-%m') = DATE_FORMAT(#{remark},'%Y-%d-%m')
+    where t.user_id =#{userId} and t.hit_user_id =#{hitUserId} and DATE_FORMAT(t.signed_time,'%Y-%d-%m') = DATE_FORMAT(#{remark},'%Y-%d-%m')
   </select>
 </mapper>
