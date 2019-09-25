@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author zhanglei
@@ -97,8 +98,18 @@ public class HItChickenController extends BaseController {
             return returnResult(score.toString());
         }
 
+        //今日被打用户已经打了分值
+        Object getHitUserScore = redisService.get(ContantUtil.HIT_USER_SCORE_TODAY.concat(now).concat(":").concat(hitChickenRequest.getOpenid()).concat(":").concat(hitChickenRequest.getHitOpenid()));
+        Double hitUserScore = 0.0;
+        if (null != getHitUserScore) {
+            hitUserScore = Double.valueOf(getHitUserScore.toString());
+        }
+
         //差值大于得分 插入记录
         if (diffValue > Double.valueOf(hitChickenRequest.getScore())) {
+
+            //更新今日被打用户分值
+            redisService.setByTime(ContantUtil.HIT_USER_SCORE_TODAY.concat(now).concat(":").concat(hitChickenRequest.getOpenid()).concat(":").concat(hitChickenRequest.getHitOpenid()), Double.valueOf(hitChickenRequest.getScore()) + hitUserScore, 2, TimeUnit.DAYS);
 
             //更新缓存
             redisService.set(ContantUtil.GAIN_SCORE.concat(now).concat(":").concat(hitChickenRequest.getUserId()), Double.valueOf(hitChickenRequest.getScore()) + gainScore);
@@ -106,6 +117,10 @@ public class HItChickenController extends BaseController {
             //插入分值
             insetDetail(Double.valueOf(hitChickenRequest.getScore()), hitChickenRequest.getUserId(), hitChickenRequest.getOpenid(), hitChickenRequest.getHitUserId());
         } else {
+
+            //更新今日被打用户分值
+            redisService.setByTime(ContantUtil.HIT_USER_SCORE_TODAY.concat(now).concat(":").concat(hitChickenRequest.getOpenid()).concat(":").concat(hitChickenRequest.getHitOpenid()), diffValue + hitUserScore, 2, TimeUnit.DAYS);
+
             //更新缓存
             redisService.set(ContantUtil.GAIN_SCORE.concat(now).concat(":").concat(hitChickenRequest.getUserId()), gainScore + diffValue);
 

@@ -154,15 +154,76 @@ public class RedisService {
      *
      * @param openId  小程序openId
      * @param formId  小程序formId
-     * @param title   通知标题
      * @param content 通知内容
+     * @param template 通知内容
      * @return boolean
      * @author zhanglei
      * @date 2019/09/14
+     *
+     * 兑换项目
+     * {{keyword1.DATA}}
+     *
+     * 兑换时间
+     * {{keyword2.DATA}}
+     *
+     * 订单编号
+     * {{keyword3.DATA}}
+     *
+     * 收货地址
+     * {{keyword4.DATA}}
+     *
+     * 备注信息
+     * {{keyword5.DATA}}
      */
-    public boolean pushNoticeUtil(String openId, String formId, String title, String content) {
-        logger.info("pushNoticeUtil方法开始");
+    public boolean pushExchangeSuccessNotice(String openId, String formId, String content,String template) {
+        logger.info("兑换商品成功推送消息方法开始，openid={},content={}",openId,content);
         //缓存access_token
+        String access_token = getAccessToken();
+
+        String[] vals= content.split("@");
+
+        JSONObject jsonObject1 = new JSONObject();
+        jsonObject1.put("touser", openId);
+        // DINING_TEMPLATE 模板Id  微信公众平台添加模板时生成的ID
+        jsonObject1.put("template_id", template);
+        jsonObject1.put("form_id", formId);
+        JSONObject key = new JSONObject();
+        JSONObject val = new JSONObject();
+
+        //兑换项目
+        val.put("value", vals[0]);
+        key.put("keyword1", val);
+
+        //兑换时间
+        val = new JSONObject();
+        val.put("value", vals[1]);
+        key.put("keyword2", val);
+
+        //订单编号
+        val = new JSONObject();
+        val.put("value", vals[2]);
+        key.put("keyword3", val);
+
+        //收货地址
+        val = new JSONObject();
+        val.put("value", vals[3]);
+        key.put("keyword4", val);
+
+        //备注信息
+        val = new JSONObject();
+        val.put("value", vals[4]);
+        key.put("keyword5", val);
+
+
+        jsonObject1.put("data", key);
+        logger.info("兑换商品成功推送消息方法，推送json={}",jsonObject1.toJSONString());
+        boolean pushResult = WechatUtil.setPush(jsonObject1.toString(), access_token);
+        logger.info("兑换商品成功推送消息方法结束：推送结果" + pushResult);
+        return pushResult;
+    }
+
+
+    private String getAccessToken(){
         Object ac = get(ContantUtil.ACCESS_TOKEN);
         String access_token = "";
         if (null == ac) {
@@ -175,22 +236,70 @@ public class RedisService {
         } else {
             access_token = ac.toString();
         }
+        return access_token;
+    }
+
+    /**
+     * 功能描述
+     *
+     * @param openId  小程序openId
+     * @param formId  小程序formId
+     * @param content 通知内容
+     * @param template 模板ID
+     * @return boolean
+     * @author zhanglei
+     * @date 2019/09/14
+     *物品名称
+     * {{keyword1.DATA}}
+     *
+     * 快递公司
+     * {{keyword2.DATA}}
+     *
+     * 发货时间
+     * {{keyword3.DATA}}
+     *
+     * 快递单号
+     * {{keyword4.DATA}}
+     *
+     */
+    public boolean pushSendExpressNotice(String openId, String formId, String content,String template) {
+        logger.info("快递发货推送消息方法开始，openid={},content={}",openId,content);
+        //缓存access_token
+        String access_token = getAccessToken();
+
+        String[] vals= content.split("@");
 
         JSONObject jsonObject1 = new JSONObject();
         jsonObject1.put("touser", openId);
         // DINING_TEMPLATE 模板Id  微信公众平台添加模板时生成的ID
-        jsonObject1.put("template_id", ContantUtil.DINING_TEMPLATE);
+        jsonObject1.put("template_id", template);
         jsonObject1.put("form_id", formId);
-        JSONObject jsonObject2 = new JSONObject();
-        JSONObject jsonObject3 = new JSONObject();
-        jsonObject3.put("value", title);
-        jsonObject2.put("keyword1", jsonObject3);
-        jsonObject3 = new JSONObject();
-        jsonObject3.put("value", content);
-        jsonObject2.put("keyword2", jsonObject3);
-        jsonObject1.put("data", jsonObject2);
+        JSONObject key = new JSONObject();
+        JSONObject val = new JSONObject();
+
+        //物品名称
+        val.put("value", vals[0]);
+        key.put("keyword1", val);
+
+        //快递公司
+        val = new JSONObject();
+        val.put("value", vals[1]);
+        key.put("keyword2", val);
+
+        //发货时间
+        val = new JSONObject();
+        val.put("value", vals[2]);
+        key.put("keyword3", val);
+
+        //快递单号
+        val = new JSONObject();
+        val.put("value", vals[3]);
+        key.put("keyword3", val);
+
+        jsonObject1.put("data", key);
+        logger.info("快递发货推送消息方法，推送json={}",jsonObject1.toJSONString());
         boolean pushResult = WechatUtil.setPush(jsonObject1.toString(), access_token);
-        logger.info("pushNoticeUtil方法结束：推送结果" + pushResult);
+        logger.info("快递发货推送消息方法结束：推送结果" + pushResult);
         return pushResult;
     }
 }

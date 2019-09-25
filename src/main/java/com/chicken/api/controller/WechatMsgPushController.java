@@ -44,7 +44,7 @@ public class WechatMsgPushController {
         }
 
         String[] formids = request.getFormId().split(",");
-        if(null != formids){
+        if (null != formids) {
             //删除队列
             redisService.deleteKey(ContantUtil.FROMID_INFO.concat(request.getOpenid()));
             for (int i = 0; i < formids.length; i++) {
@@ -67,7 +67,7 @@ public class WechatMsgPushController {
     @ResponseBody
     public Object pushNotice(@RequestBody UserRequest request) {
 
-        if (StringUtils.isBlank(request.getOpenid()) || StringUtils.isBlank(request.getContent())) {
+        if (StringUtils.isBlank(request.getOpenid()) || StringUtils.isBlank(request.getContent()) || StringUtils.isBlank(request.getType())) {
             return CallResult.fail(CodeEnum.LACK_PARAM.getCode(), CodeEnum.LACK_PARAM.getMsg());
         }
 
@@ -77,10 +77,25 @@ public class WechatMsgPushController {
             return CallResult.fail(CodeEnum.FORMID_IS_NULL.getCode(), CodeEnum.FORMID_IS_NULL.getMsg());
         }
 
-        logger.info("pushNoticeUtil方法开始，传入参数：openid={},formId={}", request.getOpenid(), request.getFormId());
-        if (!redisService.pushNoticeUtil(request.getOpenid(), formId.toString(), request.getTitle(), request.getContent())) {
-            return CallResult.fail(CodeEnum.PUSH_FAIL.getCode(), CodeEnum.PUSH_FAIL.getMsg());
+        String temp = null;
+        //兑换通知
+        if (request.getType().equals("1")) {
+            temp = ContantUtil.EXCHANGE_SUCCESS_TEMPLATE;
+            logger.info("兑换商品成功推送消息方法被调用，传入参数：openid={},formId={}，content={}", request.getOpenid(), request.getFormId(), request.getContent());
+            if (!redisService.pushExchangeSuccessNotice(request.getOpenid(), formId.toString(), request.getContent(), temp)) {
+                return CallResult.fail(CodeEnum.PUSH_FAIL.getCode(), CodeEnum.PUSH_FAIL.getMsg());
+            }
+        }else if (request.getType().equals("2")) {
+            //发货通知
+            temp = ContantUtil.SEND_EXPRESS_TEMPLATE;
+            logger.info("快递发货推送消息方法被调用，传入参数：openid={},formId={}，content={}", request.getOpenid(), request.getFormId(), request.getContent());
+            if (!redisService.pushSendExpressNotice(request.getOpenid(), formId.toString(), request.getContent(), temp)) {
+                return CallResult.fail(CodeEnum.PUSH_FAIL.getCode(), CodeEnum.PUSH_FAIL.getMsg());
+            }
+        }else if (request.getType().equals("3")) {
+            //发货通知
         }
+
 
         return CallResult.success();
     }

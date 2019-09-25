@@ -129,19 +129,16 @@ public class UserController extends BaseController {
         String now = DateUtil.getSpecifiedDay("yyyy-MM-dd", 0);
 
         //获取
-        AccountHit accountHit = new AccountHit();
-        accountHit.setUserId(Integer.valueOf(hitChickenRequest.getUserId()));
-        accountHit.setHitUserId(Integer.valueOf(hitChickenRequest.getHitUserId()));
-        accountHit.setRemark(now);
-        Long score = this.accountHitService.selectTodayHitScore(accountHit);
-        if (null == score) {
-            score = 0L;
+        Object getHitUserScore = redisService.get(ContantUtil.HIT_USER_SCORE_TODAY.concat(now).concat(":").concat(hitChickenRequest.getOpenid()).concat(":").concat(hitChickenRequest.getHitOpenid()));
+        Double hitUserScore = 0.0;
+        if(null != getHitUserScore){
+            hitUserScore = Double.valueOf(getHitUserScore.toString());
         }
         //每天最大分值
         Object maxScore = redisService.get(ContantUtil.MAX_HIT_USER);
 
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put("differentScore", Double.valueOf(maxScore.toString()) - score.doubleValue());
+        jsonObject.put("differentScore", Double.valueOf(maxScore.toString()) - hitUserScore);
 
         return CallResult.success(jsonObject);
     }

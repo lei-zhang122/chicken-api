@@ -7,6 +7,7 @@ import com.chicken.api.service.*;
 import com.chicken.api.util.CallResult;
 import com.chicken.api.util.CodeEnum;
 import com.chicken.api.util.ContantUtil;
+import com.chicken.api.util.DateUtil;
 import com.chicken.api.vo.GoodInfoRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -165,7 +166,7 @@ public class GoodInfoController extends BaseController {
         }
 
         //发送push消息
-        pushMsg(goodInfoRequest.getOpenid(), goodInfoRequest.getGoodId(), orderNum);
+        pushMsg(goodInfoRequest, orderNum);
 
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("orderNum", orderNum);
@@ -178,21 +179,23 @@ public class GoodInfoController extends BaseController {
     /**
      * 消息推送
      *
-     * @param openid
-     * @param goodId
+     * @param goodInfoRequest
      * @param orderNum
      */
     @Async
-    public void pushMsg(String openid, String goodId, String orderNum) {
+    public void pushMsg(GoodInfoRequest goodInfoRequest, String orderNum) {
 
         //获取FormId
-        Object formId = redisService.rightPop(ContantUtil.FROMID_INFO.concat(openid));
+        Object formId = redisService.rightPop(ContantUtil.FROMID_INFO.concat(goodInfoRequest.getOpenid()));
         if (null != formId) {
             //查询商品信息
-            GoodInfo goodInfo = this.goodInfoService.selectByPrimaryKey(Integer.valueOf(goodId));
-            StringBuffer stringBuffer = new StringBuffer("您好，您已成功兑换奖品" + goodInfo.getGoodName() + "，您的兑换单号是" + orderNum + "，我们会在7天内为您发货，请登录揍小鸡小程序查看订单详情。");
-            logger.info("推送消息，openid={},消息内容为：{}", openid, stringBuffer.toString());
-            redisService.pushNoticeUtil(openid, formId.toString(), "", stringBuffer.toString());
+            GoodInfo goodInfo = this.goodInfoService.selectByPrimaryKey(Integer.valueOf(goodInfoRequest.getGoodId()));
+            String remark = "您好，您已成功兑换奖品" + goodInfo.getGoodName() + "，您的兑换单号是" + orderNum + "，我们会在7天内为您发货，请登录揍小鸡小程序查看订单详情。";
+            String date = DateUtil.currentYYYYMMDDHHmmssWithSymbol();
+            String detail = goodInfoRequest.getProvinceName() + goodInfoRequest.getCityName() + goodInfoRequest.getCountyName() + goodInfoRequest.getDetailInfo();
+            String content = "商品兑换@" + date + "@" + orderNum + "@" + detail + "@" + remark;
+            logger.info("推送消息，openid={},userId={},消息内容为：{}", goodInfoRequest.getOpenid(), goodInfoRequest.getUserId(), content);
+            redisService.pushExchangeSuccessNotice(goodInfoRequest.getOpenid(), formId.toString(), content, "1");
         }
     }
 

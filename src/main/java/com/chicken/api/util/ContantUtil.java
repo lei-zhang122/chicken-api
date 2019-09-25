@@ -31,7 +31,7 @@ public class ContantUtil {
     public static String GAIN_SCORE = "gain:score:";
 
     //用户打某一个用户今日获得分值
-    public static String HIT_USER_SCORE_TODAY = "uo:hit:uo:score";
+    public static String HIT_USER_SCORE_TODAY = "uo:hit:uo:s:";
 
     //每天打某一用户最多获得积分
     public static String MAX_HIT_USER = "d:hit:user:s";
@@ -63,9 +63,6 @@ public class ContantUtil {
     //微信access_token
     public static String ACCESS_TOKEN = "access_token";
 
-    //消息模板id
-    public static String DINING_TEMPLATE = "qKfOCgoTzPMg7rHJZiURzRbqWZm29CSTm9SPw_yWpNE";
-
     //fromid
     public static String FROMID_INFO = "fromid:list:";
 
@@ -83,4 +80,10 @@ public class ContantUtil {
 
     //分值list
     public static String SCORE_LIST="d:scorelist";
+
+    //兑换成功
+    public static String EXCHANGE_SUCCESS_TEMPLATE="sET2SSUEohQezhLEzQjtw_cP1RqiT7YG3rRCZpuCx24";
+
+    //发货通知
+    public static String SEND_EXPRESS_TEMPLATE="WDnBh9PPYp-mXT3zxjG1jBP8zsnuAu-eHb3MnO3k2xI";
 }
