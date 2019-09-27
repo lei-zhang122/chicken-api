@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -159,20 +160,27 @@ public class ConsumeController extends BaseController {
      */
     private List<ConsumeRquest> selectByDetail(UserRequest request, Integer userId, List<ConsumeRquest> consumeRquestList) {
 
-        String[] vals = getPageNumAndPageSize(request);
-        AccountDetail accountDetail = new AccountDetail();
-        accountDetail.setUserId(userId);
-        PageInfo<AccountDetail> signeds = this.accountDetailService.selectByAccountDetail(accountDetail, Integer.valueOf(vals[0]), Integer.valueOf(vals[1]));
-        if (signeds.getList().size() > 0) {
-            for (AccountDetail s : signeds.getList()) {
-                ConsumeRquest consumeRquest = new ConsumeRquest();
-                consumeRquest.setCreateTime(s.getCreateTime());
-                consumeRquest.setOperateTime(DateUtil.currentYYYYMMDDHHmmssWithSymbol(s.getCreateTime()));
-                consumeRquest.setRemark(s.getRemark());
-                consumeRquest.setScore(s.getScore().toString());
-                consumeRquest.setType(s.getDetailType());
-                consumeRquestList.add(consumeRquest);
+        try {
+            String[] vals = getPageNumAndPageSize(request);
+            AccountDetail accountDetail = new AccountDetail();
+            accountDetail.setUserId(userId);
+            PageInfo<Map> signeds = this.accountDetailService.selectByAccountDetail(accountDetail, Integer.valueOf(vals[0]), Integer.valueOf(vals[1]));
+            if (signeds.getList().size() > 0) {
+                for (Map s : signeds.getList()) {
+
+                    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+                    ConsumeRquest consumeRquest = new ConsumeRquest();
+                    consumeRquest.setCreateTime(format.parse(s.get("create_time").toString()));
+                    consumeRquest.setOperateTime(DateUtil.currentYYYYMMDDHHmmssWithSymbol(s.get("create_time").toString()));
+                    consumeRquest.setRemark(s.get("remark").toString());
+                    consumeRquest.setScore(s.get("score").toString());
+                    consumeRquest.setType(s.get("detail_type").toString());
+                    consumeRquestList.add(consumeRquest);
+                }
             }
+        }catch (Exception e){
+            e.printStackTrace();
         }
         return consumeRquestList;
     }

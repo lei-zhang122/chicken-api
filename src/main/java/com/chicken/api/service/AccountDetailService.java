@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author zhanglei
@@ -47,10 +48,10 @@ public class AccountDetailService {
         return accountDetailDao.updateByPrimaryKey(record);
     }
 
-    public PageInfo<AccountDetail> selectByAccountDetail(AccountDetail accountDetail, int pageNum, int pageSize) {
+    public PageInfo<Map> selectByAccountDetail(AccountDetail accountDetail, int pageNum, int pageSize) {
         //将参数传给这个方法就可以实现物理分页了
         PageHelper.startPage(pageNum, pageSize);
-        List<AccountDetail> userLists = accountDetailDao.selectByAccountDetail(accountDetail);
+        List<Map> userLists = accountDetailDao.selectByAccountDetail(accountDetail);
         PageInfo result = new PageInfo(userLists);
         return result;
     }

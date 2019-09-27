@@ -4,6 +4,7 @@ import com.chicken.api.model.AccountDetail;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface AccountDetailDao {
@@ -17,5 +18,5 @@ public interface AccountDetailDao {
 
     int updateByPrimaryKey(AccountDetail record);
 
-    List<AccountDetail> selectByAccountDetail(AccountDetail accountDetail);
+    List<Map> selectByAccountDetail(AccountDetail accountDetail);
  }

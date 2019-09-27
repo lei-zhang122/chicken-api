@@ -307,6 +307,7 @@ public class GoodInfoController extends BaseController {
         signed.setScoreCount(accountUser.getBalance());
         signed.setStatus("1");
         signed.setScore(-score);
+        signed.setGoodId(goodId);
         signed.setRemark(orderNum);
         this.accountDetailService.insert(signed);
         logger.info("商品兑换，用户id{}，商品id:{},消耗积分{},插入到流水表", userId, goodId, -score);
