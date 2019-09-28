@@ -4,6 +4,7 @@ import com.chicken.api.model.WechatUser;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface WechatUserDao {
@@ -20,5 +21,5 @@ public interface WechatUserDao {
 
     WechatUser selectByOpenId(String openid);
 
-    List<WechatUser> selectTopFive();
+    List<Map> selectTopFive();
 }

@@ -123,10 +123,10 @@ public class GoodInfoController extends BaseController {
     @ResponseBody
     public Object goodExchangeById(@RequestBody GoodInfoRequest goodInfoRequest) {
 
-        String sessionId = request.getHeader("sessionId");
+        /*String sessionId = request.getHeader("sessionId");
         if (!isLogin(sessionId)) {
             return CallResult.fail(CodeEnum.LOGIN_OUT_TIME.getCode(), CodeEnum.LOGIN_OUT_TIME.getMsg());
-        }
+        }*/
 
         if (StringUtils.isBlank(goodInfoRequest.getGoodId()) || StringUtils.isBlank(goodInfoRequest.getOpenid())
                 || StringUtils.isBlank(goodInfoRequest.getScore()) || StringUtils.isBlank(goodInfoRequest.getTelNumber())
@@ -139,6 +139,12 @@ public class GoodInfoController extends BaseController {
             return CallResult.fail(CodeEnum.NO_FIND_USER.getCode(), CodeEnum.NO_FIND_USER.getMsg());
         } else {
             goodInfoRequest.setUserId(userId.toString());
+        }
+
+        //如果虚拟降价价格是0 获取虚拟价格
+        if(goodInfoRequest.getScore().equals("0")){
+            GoodInfo goodInfo = this.goodInfoService.selectByPrimaryKey(Integer.valueOf(goodInfoRequest.getGoodId()));
+            goodInfoRequest.setScore(goodInfo.getGoodVirtual().toString());
         }
 
         //缓存获得产品数量
@@ -232,8 +238,8 @@ public class GoodInfoController extends BaseController {
      */
     private boolean userIntegral(String userId, Double score) {
 
-        Double myscore = redisService.score(ContantUtil.USER_RANKING_LIST, userId);
-        if (myscore >= score) {
+        AccountUser accountUser = this.accountUserService.selectByUserId(Integer.valueOf(userId));
+        if (accountUser.getBalance() >= score) {
             return true;
         }
 

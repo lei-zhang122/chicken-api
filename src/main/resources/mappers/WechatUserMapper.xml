@@ -56,8 +56,10 @@
     from t_wechat_user
     where openid = #{openid,jdbcType=VARCHAR}
   </select>
-  <select id="selectTopFive" resultMap="BaseResultMap" >
-    select id, nick_name, phone, avatar, openid, unionid, sex, invite_num, status, create_time,reg_source
-    from t_wechat_user where status=1 order by RAND() limit 5
+  <select id="selectTopFive" resultType="java.util.HashMap" >
+    select t.nick_name, t.avatar, t.openid,a.balance,t.id
+    from t_wechat_user  t
+left join t_account_user a on a.user_id = t.id
+    where t.status=1 order by RAND() limit 6
   </select>
 </mapper>

@@ -113,7 +113,7 @@ public class ConsumeController extends BaseController {
                 consumeRquest.setOperateTime(DateUtil.currentYYYYMMDDHHmmssWithSymbol(s.getSignedTime()));
                 consumeRquest.setCreateTime(s.getSignedTime());
                 consumeRquest.setRemark(s.getRemark());
-                consumeRquest.setScore(s.getScore().toString());
+                consumeRquest.setScore(s.getScore().intValue()+"");
                 consumeRquest.setType("打卡");
                 consumeRquestList.add(consumeRquest);
             }
@@ -142,7 +142,7 @@ public class ConsumeController extends BaseController {
                 consumeRquest.setCreateTime(s.getSignedTime());
                 consumeRquest.setOperateTime(DateUtil.currentYYYYMMDDHHmmssWithSymbol(s.getSignedTime()));
                 consumeRquest.setRemark(s.getRemark());
-                consumeRquest.setScore(s.getScore().toString());
+                consumeRquest.setScore(s.getScore().intValue()+"");
                 consumeRquest.setType("揍小鸡");
                 consumeRquestList.add(consumeRquest);
             }
@@ -167,19 +167,24 @@ public class ConsumeController extends BaseController {
             PageInfo<Map> signeds = this.accountDetailService.selectByAccountDetail(accountDetail, Integer.valueOf(vals[0]), Integer.valueOf(vals[1]));
             if (signeds.getList().size() > 0) {
                 for (Map s : signeds.getList()) {
-
+                    String str = null;
+                    if (s.get("detail_flag").toString().equals("4")) {
+                        str = "兑换商品-"+s.get("good_name")+"";
+                    } else {
+                        str = s.get("remark").toString();
+                    }
+                    String[] a = s.get("score").toString().split("\\.");
                     SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
                     ConsumeRquest consumeRquest = new ConsumeRquest();
                     consumeRquest.setCreateTime(format.parse(s.get("create_time").toString()));
                     consumeRquest.setOperateTime(DateUtil.currentYYYYMMDDHHmmssWithSymbol(s.get("create_time").toString()));
-                    consumeRquest.setRemark(s.get("remark").toString());
-                    consumeRquest.setScore(s.get("score").toString());
+                    consumeRquest.setRemark(str);
+                    consumeRquest.setScore(a[0]);
                     consumeRquest.setType(s.get("detail_type").toString());
                     consumeRquestList.add(consumeRquest);
                 }
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return consumeRquestList;
@@ -248,10 +253,14 @@ public class ConsumeController extends BaseController {
         JSONArray byHitChicken = new JSONArray();
         if (lists.getList().size() > 0) {
             for (Map m : lists.getList()) {
+                String hitOpenId = m.get("hit_openid").toString();
+                if (hitOpenId.equals(userRequest.getOpenid())) {
+                    continue;
+                }
                 JSONObject obj = new JSONObject();
                 obj.put("nickName", m.get("hit_nick_name"));
                 obj.put("avatar", m.get("hit_avatar"));
-                obj.put("openid", m.get("hit_openid"));
+                obj.put("openid", hitOpenId);
                 byHitChicken.add(obj);
             }
         }
@@ -261,13 +270,19 @@ public class ConsumeController extends BaseController {
 
         //查询用户5个
         JSONArray userInfo = new JSONArray();
-        List<WechatUser> userPageInfo = this.wechatUserService.selectTopFive();
+        List<Map> userPageInfo = this.wechatUserService.selectTopFive();
         if (userPageInfo.size() > 0) {
-            for (WechatUser m : userPageInfo) {
+            for (Map m : userPageInfo) {
+                String openid  = m.get("openid").toString();
+                if (openid.equals(userRequest.getOpenid())) {
+                    continue;
+                }
                 JSONObject obj = new JSONObject();
-                obj.put("nickName", m.getNickName());
-                obj.put("avatar", m.getAvatar());
-                obj.put("openid", m.getOpenid());
+                obj.put("nickName", m.get("nick_name").toString());
+                obj.put("avatar", m.get("avatar").toString());
+                obj.put("openid", openid);
+                obj.put("score",m.get("balance").toString());
+                obj.put("rank",Long.valueOf(redisService.rank(ContantUtil.USER_RANKING_LIST, m.get("id").toString())) + 1);
                 userInfo.add(obj);
             }
         }
@@ -289,15 +304,8 @@ public class ConsumeController extends BaseController {
                 friend.add(obj);
             }
         }
-
         jsonObject.put("friend", friend);
-
-
         return CallResult.success(jsonObject);
 
     }
-
-
-
-
 }

@@ -52,7 +52,7 @@
     from t_account_detail
   </select>
   <select id="selectByAccountDetail" resultType="java.util.HashMap" parameterType="com.chicken.api.model.AccountDetail" >
-    select t.id, t.detail_type, t.score, t.remark, i.good_name,t.create_time
+    select t.id,t.detail_flag, t.detail_type, t.score, t.remark, i.good_name,t.create_time
     from t_account_detail t
     left join t_good_info i on i.id = t.good_id
     WHERE 1=1

@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author zhanglei
@@ -48,7 +49,7 @@ public class WechatUserService {
         return wechatUserDao.selectByOpenId(openId);
     }
 
-    public List<WechatUser> selectTopFive() {
+    public List<Map> selectTopFive() {
         return wechatUserDao.selectTopFive();
     }
 }

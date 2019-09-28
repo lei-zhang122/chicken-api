@@ -53,6 +53,41 @@ public class NotifyController {
         return CallResult.success(jsonArray.toArray());
     }
 
+    /**
+     * 获取动画信息
+     *
+     * @return
+     */
+    @RequestMapping(value = "/animationNotify", method = RequestMethod.GET)
+    @ResponseBody
+    public Object animationNotify() {
+
+        Dictionary dictionary = new Dictionary();
+        dictionary.setDictType("xjdh");
+        dictionary.setStatus("1");
+        List<Dictionary> list = this.dictionaryService.selectByDictionary(dictionary);
+        JSONArray negativeStatusMap = new JSONArray();
+        JSONArray positiveStatusMap = new JSONArray();
+        for (Dictionary d : list) {
+            String[] detail = d.getDictDetail().split(",");
+            String[] content = d.getDictContent().split("@");
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("status", d.getDictName());
+            jsonObject.put("words", content);
+            jsonObject.put("sleep",detail[0]);
+            jsonObject.put("during",detail[1]);
+            if(d.getDictOrder()==1){
+                positiveStatusMap.add(jsonObject);
+            }else{
+                negativeStatusMap.add(jsonObject);
+            }
+        }
+        JSONObject result = new JSONObject();
+        result.put("negativeStatusMap",negativeStatusMap);
+        result.put("positiveStatusMap",positiveStatusMap);
+        return CallResult.success(result);
+    }
+
 
     /**
      * 获取兑换商品记录
