@@ -1,6 +1,9 @@
 package com.chicken.api.controller;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.chicken.api.model.Dictionary;
+import com.chicken.api.service.DictionaryService;
 import com.chicken.api.service.RedisService;
 import com.chicken.api.util.CallResult;
 import com.chicken.api.util.ContantUtil;
@@ -10,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 /**
  * @author zhanglei
@@ -21,6 +26,9 @@ public class CommonController {
 
     @Autowired
     RedisService redisService;
+
+    @Autowired
+    DictionaryService dictionaryService;
 
 
     /**
@@ -51,5 +59,38 @@ public class CommonController {
         jsonObject.put("publicKey", RSAEncrypt.PUBLIC_KEY_STRING);
 
         return CallResult.success(jsonObject);
+    }
+
+
+    /**
+     * 获取活动规则
+     *
+     * @return
+     */
+    @RequestMapping(value = "/activeRules", method = RequestMethod.GET)
+    @ResponseBody
+    public Object activeRules() {
+
+        Dictionary dictionary = new Dictionary();
+        dictionary.setDictType("hdgz");
+        dictionary.setStatus("1");
+        List<Dictionary> list = this.dictionaryService.selectByDictionary(dictionary);
+        JSONArray wanRules = new JSONArray();
+        JSONArray exchangeRules = new JSONArray();
+        for (Dictionary d : list) {
+            String[] content = d.getDictContent().split("@");
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("title", d.getDictName());
+            jsonObject.put("content", content);
+            if(d.getDifferentFlag().equals("1")){
+                wanRules.add(jsonObject);
+            }else{
+                exchangeRules.add(jsonObject);
+            }
+        }
+        JSONObject result = new JSONObject();
+        result.put("wanRules",wanRules);
+        result.put("exchangeRules",exchangeRules);
+        return CallResult.success(result);
     }
 }

@@ -31,6 +31,8 @@ public class GoodInfo {
 
     private String goodStatus;
 
+    private Integer exchangeNum;
+
     public Integer getId() {
         return id;
     }
@@ -141,5 +143,13 @@ public class GoodInfo {
 
     public void setGoodStatus(String goodStatus) {
         this.goodStatus = goodStatus;
+    }
+
+    public Integer getExchangeNum() {
+        return exchangeNum;
+    }
+
+    public void setExchangeNum(Integer exchangeNum) {
+        this.exchangeNum = exchangeNum;
     }
 }

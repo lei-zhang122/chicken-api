@@ -71,6 +71,7 @@ public class GoodInfoController extends BaseController {
             jsonObject.put("goodNum", i.getGoodNum());
             jsonObject.put("goodVirtual", i.getGoodVirtual());
             jsonObject.put("goodType", i.getGoodType());
+            jsonObject.put("exchangeNum", i.getExchangeNum());
             jsonArray.add(jsonObject);
         }
         return CallResult.success(jsonArray.toArray());
@@ -142,7 +143,7 @@ public class GoodInfoController extends BaseController {
         }
 
         //如果虚拟降价价格是0 获取虚拟价格
-        if(goodInfoRequest.getScore().equals("0")){
+        if (goodInfoRequest.getScore().equals("0")) {
             GoodInfo goodInfo = this.goodInfoService.selectByPrimaryKey(Integer.valueOf(goodInfoRequest.getGoodId()));
             goodInfoRequest.setScore(goodInfo.getGoodVirtual().toString());
         }
@@ -223,6 +224,7 @@ public class GoodInfoController extends BaseController {
         }
 
         goodInfo.setGoodNum(goodInfo.getGoodNum() - 1);
+        goodInfo.setExchangeNum(goodInfo.getExchangeNum() + 1);
         goodInfoService.updateByPrimaryKey(goodInfo);
         logger.info("商品兑换，减少商品库存，原商品数据量{},兑换用户{}", goodInfo.getGoodNum() + 1, userId);
 

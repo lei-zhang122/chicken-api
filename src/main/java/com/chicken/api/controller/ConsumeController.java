@@ -278,8 +278,8 @@ public class ConsumeController extends BaseController {
                     continue;
                 }
                 JSONObject obj = new JSONObject();
-                obj.put("nickName", m.get("nick_name").toString());
-                obj.put("avatar", m.get("avatar").toString());
+                obj.put("nickName", StringUtils.isBlank(m.get("nick_name")+"")?"":m.get("nick_name")+"");
+                obj.put("avatar", StringUtils.isBlank(m.get("avatar")+"")?"":m.get("avatar")+"");
                 obj.put("openid", openid);
                 obj.put("score",m.get("balance").toString());
                 obj.put("rank",Long.valueOf(redisService.rank(ContantUtil.USER_RANKING_LIST, m.get("id").toString())) + 1);

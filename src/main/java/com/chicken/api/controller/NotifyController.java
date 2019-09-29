@@ -76,7 +76,7 @@ public class NotifyController {
             jsonObject.put("words", content);
             jsonObject.put("sleep",detail[0]);
             jsonObject.put("during",detail[1]);
-            if(d.getDictOrder()==1){
+            if(d.getDifferentFlag().equals("1")){
                 positiveStatusMap.add(jsonObject);
             }else{
                 negativeStatusMap.add(jsonObject);
