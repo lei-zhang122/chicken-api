@@ -1,5 +1,6 @@
 package com.chicken.api.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.chicken.api.model.AccountDetail;
 import com.chicken.api.model.AccountUser;
@@ -75,6 +76,7 @@ public class LoginController extends BaseController {
         WechatUser user = this.wechatUserService.selectByOpenId(openid);
         //插入到用户表
         if (null == user) {
+
             //插入记录
             WechatUser wechatUser = new WechatUser();
             wechatUser.setCreateTime(new Date());
@@ -84,6 +86,7 @@ public class LoginController extends BaseController {
             wechatUser.setNickName(userRequest.getNickName());
             wechatUser.setRegSource(userRequest.getRegSource());
             wechatUser.setInviteNum(userRequest.getOpenid());
+            wechatUser.setRegInfo(getRegSourece(userRequest.getRegSource()));
             wechatUserService.insert(wechatUser);
             logger.info("注册用户，插入到用户表，用户id={}，openid={}，邀请码={}，code={}", wechatUser.getId(), openid, userRequest.getOpenid(), userRequest.getCode());
 
@@ -206,6 +209,24 @@ public class LoginController extends BaseController {
             return returnResult(user.getId(), openid, jsonObject);
         }
 
+    }
+
+    /**
+     * 获取几号线
+     * @param regSource
+     * @return
+     */
+    private String getRegSourece(String regSource){
+        if(StringUtils.isBlank(regSource)){
+            return null;
+        }
+        Object object = JSON.parse(regSource);
+        if(object instanceof JSONObject){
+            JSONObject jsonObject = (JSONObject) object;
+            return jsonObject.getString("lineNo");
+        }else{
+            return null;
+        }
     }
 
     private CallResult returnResult(Integer userId, String openid, JSONObject json) {

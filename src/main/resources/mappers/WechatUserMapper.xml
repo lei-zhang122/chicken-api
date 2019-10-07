@@ -13,6 +13,7 @@
     <result column="status" property="status" jdbcType="CHAR" />
     <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
     <result column="reg_source" property="regSource" jdbcType="VARCHAR" />
+    <result column="reg_info" property="regInfo" jdbcType="VARCHAR" />
   </resultMap>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
     delete from t_wechat_user
@@ -21,11 +22,12 @@
   <insert id="insert" parameterType="com.chicken.api.model.WechatUser" useGeneratedKeys="true" keyProperty="id">
     insert into t_wechat_user (id, nick_name, phone, 
       avatar, openid, unionid, 
-      sex, invite_num, status, create_time,reg_source
+      sex, invite_num, status, create_time,reg_source,reg_info
       )
     values (#{id,jdbcType=INTEGER}, #{nickName,jdbcType=VARCHAR}, #{phone,jdbcType=VARCHAR}, 
       #{avatar,jdbcType=VARCHAR}, #{openid,jdbcType=VARCHAR}, #{unionid,jdbcType=VARCHAR}, 
       #{sex,jdbcType=CHAR}, #{inviteNum,jdbcType=VARCHAR}, #{status,jdbcType=CHAR}, #{createTime,jdbcType=TIMESTAMP}, #{regSource,jdbcType=VARCHAR}
+      , #{regInfo,jdbcType=VARCHAR}
       )
   </insert>
   <update id="updateByPrimaryKey" parameterType="com.chicken.api.model.WechatUser" >
@@ -39,20 +41,21 @@
       invite_num = #{inviteNum,jdbcType=VARCHAR},
       status = #{status,jdbcType=CHAR},
       create_time = #{createTime,jdbcType=TIMESTAMP},
-      reg_source = #{regSource,jdbcType=VARCHAR}
+      reg_source = #{regSource,jdbcType=VARCHAR},
+      reg_info = #{regInfo,jdbcType=VARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
-    select id, nick_name, phone, avatar, openid, unionid, sex, invite_num, status, create_time,reg_source
+    select id, nick_name, phone, avatar, openid, unionid, sex, invite_num, status, create_time,reg_source,reg_info
     from t_wechat_user
     where id = #{id,jdbcType=INTEGER}
   </select>
   <select id="selectAll" resultMap="BaseResultMap" >
-    select id, nick_name, phone, avatar, openid, unionid, sex, invite_num, status, create_time,reg_source
+    select id, nick_name, phone, avatar, openid, unionid, sex, invite_num, status, create_time,reg_source,reg_info
     from t_wechat_user where status=1
   </select>
   <select id="selectByOpenId" resultMap="BaseResultMap" parameterType="java.lang.String" >
-    select id, nick_name, phone, avatar, openid, unionid, sex, invite_num, status, create_time,reg_source
+    select id, nick_name, phone, avatar, openid, unionid, sex, invite_num, status, create_time,reg_source,reg_info
     from t_wechat_user
     where openid = #{openid,jdbcType=VARCHAR}
   </select>

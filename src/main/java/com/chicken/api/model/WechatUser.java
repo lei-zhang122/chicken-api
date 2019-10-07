@@ -27,6 +27,8 @@ public class WechatUser {
 
     private String cityName;
 
+    private String regInfo;
+
     public Integer getId() {
         return id;
     }
@@ -121,5 +123,13 @@ public class WechatUser {
 
     public void setCityName(String cityName) {
         this.cityName = cityName;
+    }
+
+    public String getRegInfo() {
+        return regInfo;
+    }
+
+    public void setRegInfo(String regInfo) {
+        this.regInfo = regInfo;
     }
 }
