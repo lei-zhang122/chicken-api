@@ -145,4 +145,24 @@ public class UserRequest {
     public void setOrderNum(String orderNum) {
         this.orderNum = orderNum;
     }
+
+    @Override
+    public String toString() {
+        return "UserRequest{" +
+                "userId='" + userId + '\'' +
+                ", openid='" + openid + '\'' +
+                ", code='" + code + '\'' +
+                ", invite='" + invite + '\'' +
+                ", nickName='" + nickName + '\'' +
+                ", currentPage='" + currentPage + '\'' +
+                ", pageSize='" + pageSize + '\'' +
+                ", avatar='" + avatar + '\'' +
+                ", regSource='" + regSource + '\'' +
+                ", type='" + type + '\'' +
+                ", formId='" + formId + '\'' +
+                ", title='" + title + '\'' +
+                ", content='" + content + '\'' +
+                ", orderNum='" + orderNum + '\'' +
+                '}';
+    }
 }

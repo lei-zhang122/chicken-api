@@ -65,6 +65,8 @@ public class LoginController extends BaseController {
             return CallResult.fail(CodeEnum.LACK_PARAM.getCode(), CodeEnum.LACK_PARAM.getMsg());
         }
 
+        logger.info("注册用户，入参参数={}",userRequest.toString());
+
         JSONObject SessionKeyOpenId = WechatUtil.getSessionKeyOrOpenId(userRequest.getCode());
 
         String openid = SessionKeyOpenId.getString("openid");
