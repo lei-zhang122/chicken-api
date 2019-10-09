@@ -251,7 +251,7 @@ public class LoginController extends BaseController {
     public void insetDetail(Double score, Integer userId, String openid) {
 
         //更新账户信息
-        AccountUser accountUser = this.accountUserService.selectByPrimaryKey(userId);
+        AccountUser accountUser = this.accountUserService.selectByUserId(userId);
         accountUser.setAttentCount(accountUser.getAttentCount() + score);
         accountUser.setBalance(accountUser.getBalance() + score);
         accountUserService.updateByPrimaryKey(accountUser);
