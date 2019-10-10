@@ -203,7 +203,7 @@ public class GoodInfoController extends BaseController {
         if (null != formId) {
             //查询商品信息
             GoodInfo goodInfo = this.goodInfoService.selectByPrimaryKey(Integer.valueOf(goodInfoRequest.getGoodId()));
-            String remark = "您好，您已成功兑换奖品" + goodInfo.getGoodName() + "，您的兑换单号是" + orderNum + "，我们会在7天内为您发货，请登录揍小鸡小程序查看订单详情。";
+            String remark = "您好，您已成功兑换奖品" + goodInfo.getGoodName() + "，您的兑换单号是" + orderNum + "，我们会在7天内为您发货，请登录元气能量社小程序查看订单详情。";
             String date = DateUtil.currentYYYYMMDDHHmmssWithSymbol();
             String detail = goodInfoRequest.getProvinceName() + goodInfoRequest.getCityName() + goodInfoRequest.getCountyName() + goodInfoRequest.getDetailInfo();
             String content = "商品兑换@" + date + "@" + orderNum + "@" + detail + "@" + remark;

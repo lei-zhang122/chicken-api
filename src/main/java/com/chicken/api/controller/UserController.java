@@ -261,7 +261,7 @@ public class UserController extends BaseController {
             object.put("goodType", m.get("good_type"));
             object.put("orderNum", m.get("order_num"));
             object.put("expressName", m.get("express_name"));
-            object.put("score", m.get("good_down_virtual"));
+            object.put("score", m.get("score"));
             object.put("expressNum", m.get("express_num"));
             String status = m.get("exchange_status").toString();
             if (status.equals("1")) {

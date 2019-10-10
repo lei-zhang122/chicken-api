@@ -105,12 +105,12 @@ public class UserIndexController extends BaseController {
         }
 
         Integer pageNum = Integer.valueOf(request.getCurrentPage());
-        Integer pageSize = pageNum * 10;
+        Integer pageSize = pageNum * 9;
 
         if (pageNum == 1) {
             pageNum = 0;
         } else {
-            pageNum = (pageNum - 1) * 10;
+            pageNum = (pageNum - 1) * 9;
         }
 
         JSONObject result = new JSONObject();

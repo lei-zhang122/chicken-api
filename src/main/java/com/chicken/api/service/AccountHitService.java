@@ -57,6 +57,11 @@ public class AccountHitService {
         return result;
     }
 
+    public List<AccountHit> selectByAccountHitPage(AccountHit accountHit) {
+        List<AccountHit> userLists = accountHitDao.selectByAccountHitPage(accountHit);
+        return userLists;
+    }
+
     public PageInfo<Map> selectHitUserName(AccountHit accountHit, int pageNum, int pageSize) {
         //将参数传给这个方法就可以实现物理分页了
         PageHelper.startPage(pageNum, pageSize);

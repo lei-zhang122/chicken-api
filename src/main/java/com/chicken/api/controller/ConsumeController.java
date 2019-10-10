@@ -62,10 +62,10 @@ public class ConsumeController extends BaseController {
     @ResponseBody
     public Object consumeList(@RequestBody UserRequest userRequest) {
 
-        String sessionId = request.getHeader("sessionId");
+        /*String sessionId = request.getHeader("sessionId");
         if (!isLogin(sessionId)) {
             return CallResult.fail(CodeEnum.LOGIN_OUT_TIME.getCode(), CodeEnum.LOGIN_OUT_TIME.getMsg());
-        }
+        }*/
 
         if (StringUtils.isBlank(userRequest.getOpenid())) {
             return CallResult.fail(CodeEnum.LACK_PARAM.getCode(), CodeEnum.LACK_PARAM.getMsg());
@@ -89,7 +89,10 @@ public class ConsumeController extends BaseController {
         List result = consumeRquestList.stream().sorted(Comparator.comparing(ConsumeRquest::getCreateTime).reversed()).collect(Collectors.toList());
 
         JSONArray jsonArray = new JSONArray(result);
-        return CallResult.success(jsonArray.toArray());
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("data",jsonArray.toArray());
+        jsonObject.put("count",0);
+        return CallResult.success(jsonObject);
     }
 
 
@@ -196,7 +199,7 @@ public class ConsumeController extends BaseController {
             pageNum = Integer.valueOf(request.getCurrentPage());
         }
 
-        Integer pageSize = ContantUtil.DEFAULT_PAGE_SIZE;
+        Integer pageSize = 60;
         if (null != request.getPageSize() && !"0".equals(request.getPageSize())) {
             pageSize = Integer.valueOf(request.getPageSize());
         }
