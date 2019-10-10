@@ -61,9 +61,10 @@
   </select>
   <select id="selectByGoodOrder" resultType="java.util.HashMap" parameterType="com.chicken.api.model.GoodOrder" >
     select t.id, t.exchange_time,i.good_name,i.good_type,i.good_img,t.exchange_status,
-    t.order_num,t.express_name,t.express_num,i.good_down_virtual
+    t.order_num,t.express_name,t.express_num,d.score
     from t_good_order t
     left join t_good_info i on i.id = t.good_id
+    left join t_account_detail d on d.remark = t.order_num
     WHERE 1=1
     <if test="goodId != null and goodId !=''" >
       AND t.good_id = #{goodId}
