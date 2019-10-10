@@ -86,4 +86,7 @@ public class ContantUtil {
 
     //发货通知
     public static String SEND_EXPRESS_TEMPLATE="WDnBh9PPYp-mXT3zxjG1jBP8zsnuAu-eHb3MnO3k2xI";
+
+    //用户黑名单
+    public static String BLACK_USER="b:u:";
 }

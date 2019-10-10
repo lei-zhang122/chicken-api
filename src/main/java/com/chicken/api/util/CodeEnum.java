@@ -28,7 +28,8 @@ public enum CodeEnum {
 	OPENID_IS_NULL(1007,"openid is null"),
 	FORMID_IS_NULL(1009,"formId is null"),
 	PUSH_FAIL(1008,"push消息失败"),
-	DECRYPT_EXCEPTION(1010,"解密失败");
+	DECRYPT_EXCEPTION(1010,"解密失败"),
+	IS_BLACK_USER(1011,"黑名单用户");
 
 
 	 private static final Map<Integer, CodeEnum> codeMap = new HashMap<Integer, CodeEnum>((int)(CodeEnum.values().length/0.75)+1);

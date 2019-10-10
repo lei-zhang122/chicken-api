@@ -124,10 +124,10 @@ public class GoodInfoController extends BaseController {
     @ResponseBody
     public Object goodExchangeById(@RequestBody GoodInfoRequest goodInfoRequest) {
 
-        /*String sessionId = request.getHeader("sessionId");
+        String sessionId = request.getHeader("sessionId");
         if (!isLogin(sessionId)) {
             return CallResult.fail(CodeEnum.LOGIN_OUT_TIME.getCode(), CodeEnum.LOGIN_OUT_TIME.getMsg());
-        }*/
+        }
 
         if (StringUtils.isBlank(goodInfoRequest.getGoodId()) || StringUtils.isBlank(goodInfoRequest.getOpenid())
                 || StringUtils.isBlank(goodInfoRequest.getScore()) || StringUtils.isBlank(goodInfoRequest.getTelNumber())
@@ -141,6 +141,12 @@ public class GoodInfoController extends BaseController {
         } else {
             goodInfoRequest.setUserId(userId.toString());
         }
+
+        //判断用户黑名单
+        if(isBlackUser(goodInfoRequest.getUserId())){
+            return CallResult.fail(CodeEnum.IS_BLACK_USER.getCode(), CodeEnum.IS_BLACK_USER.getMsg());
+        }
+
 
         //如果虚拟降价价格是0 获取虚拟价格
         if (goodInfoRequest.getScore().equals("0")) {
@@ -202,7 +208,7 @@ public class GoodInfoController extends BaseController {
             String detail = goodInfoRequest.getProvinceName() + goodInfoRequest.getCityName() + goodInfoRequest.getCountyName() + goodInfoRequest.getDetailInfo();
             String content = "商品兑换@" + date + "@" + orderNum + "@" + detail + "@" + remark;
             logger.info("推送消息，openid={},userId={},消息内容为：{}", goodInfoRequest.getOpenid(), goodInfoRequest.getUserId(), content);
-            redisService.pushExchangeSuccessNotice(goodInfoRequest.getOpenid(), formId.toString(), content, "1");
+            redisService.pushExchangeSuccessNotice(goodInfoRequest.getOpenid(), formId.toString(), content, ContantUtil.EXCHANGE_SUCCESS_TEMPLATE);
         }
     }
 
@@ -345,5 +351,19 @@ public class GoodInfoController extends BaseController {
         System.out.println("===========================");
 
         return "success";
+    }
+
+
+    /**
+     * 判断黑名单
+     * @param userId
+     * @return
+     */
+    private boolean isBlackUser(String userId){
+        Object object = redisService.get(ContantUtil.BLACK_USER.concat(userId));
+        if(null == object){
+            return false;
+        }
+        return true;
     }
 }
