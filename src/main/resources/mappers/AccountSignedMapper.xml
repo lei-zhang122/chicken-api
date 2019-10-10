@@ -59,5 +59,7 @@
     <if test="userId != null and userId !=''" >
       AND user_id = #{userId}
     </if>
+    ORDER by id desc
+    limit #{paramA},#{paramB}
   </select>
 </mapper>

@@ -23,6 +23,10 @@ public class AccountSigned {
 
     private Integer userId;
 
+    private Integer paramA;
+
+    private Integer paramB;
+
     public Integer getId() {
         return id;
     }
@@ -101,5 +105,21 @@ public class AccountSigned {
 
     public void setSignedTime(Date signedTime) {
         this.signedTime = signedTime;
+    }
+
+    public Integer getParamA() {
+        return paramA;
+    }
+
+    public void setParamA(Integer paramA) {
+        this.paramA = paramA;
+    }
+
+    public Integer getParamB() {
+        return paramB;
+    }
+
+    public void setParamB(Integer paramB) {
+        this.paramB = paramB;
     }
 }

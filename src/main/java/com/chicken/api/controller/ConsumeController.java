@@ -62,10 +62,10 @@ public class ConsumeController extends BaseController {
     @ResponseBody
     public Object consumeList(@RequestBody UserRequest userRequest) {
 
-        /*String sessionId = request.getHeader("sessionId");
+        String sessionId = request.getHeader("sessionId");
         if (!isLogin(sessionId)) {
             return CallResult.fail(CodeEnum.LOGIN_OUT_TIME.getCode(), CodeEnum.LOGIN_OUT_TIME.getMsg());
-        }*/
+        }
 
         if (StringUtils.isBlank(userRequest.getOpenid())) {
             return CallResult.fail(CodeEnum.LACK_PARAM.getCode(), CodeEnum.LACK_PARAM.getMsg());
@@ -91,7 +91,7 @@ public class ConsumeController extends BaseController {
         JSONArray jsonArray = new JSONArray(result);
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("data",jsonArray.toArray());
-        jsonObject.put("count",0);
+        jsonObject.put("count",1);
         return CallResult.success(jsonObject);
     }
 
@@ -109,9 +109,11 @@ public class ConsumeController extends BaseController {
         String[] vals = getPageNumAndPageSize(request);
         AccountSigned accountSigned = new AccountSigned();
         accountSigned.setUserId(userId);
-        PageInfo<AccountSigned> signeds = this.accountSignedService.selectByAccountSigned(accountSigned, Integer.valueOf(vals[0]), Integer.valueOf(vals[1]));
-        if (signeds.getList().size() > 0) {
-            for (AccountSigned s : signeds.getList()) {
+        accountSigned.setParamA((Integer.valueOf(vals[0])-1)*Integer.valueOf(vals[1]));
+        accountSigned.setParamB(Integer.valueOf(vals[1]));
+        List<AccountSigned> signeds = this.accountSignedService.selectByAccountSigned(accountSigned);
+        if (signeds.size() > 0) {
+            for (AccountSigned s : signeds) {
                 ConsumeRquest consumeRquest = new ConsumeRquest();
                 consumeRquest.setOperateTime(DateUtil.currentYYYYMMDDHHmmssWithSymbol(s.getSignedTime()));
                 consumeRquest.setCreateTime(s.getSignedTime());
@@ -138,9 +140,11 @@ public class ConsumeController extends BaseController {
         String[] vals = getPageNumAndPageSize(request);
         AccountHit accountHit = new AccountHit();
         accountHit.setUserId(userId);
-        PageInfo<AccountHit> signeds = this.accountHitService.selectByAccountHit(accountHit, Integer.valueOf(vals[0]), Integer.valueOf(vals[1]));
-        if (signeds.getList().size() > 0) {
-            for (AccountHit s : signeds.getList()) {
+        accountHit.setParamA((Integer.valueOf(vals[0])-1)*Integer.valueOf(vals[1]));
+        accountHit.setParamB(Integer.valueOf(vals[1]));
+        List<AccountHit> signeds = this.accountHitService.selectByAccountHitPage(accountHit);
+        if (signeds.size() > 0) {
+            for (AccountHit s : signeds) {
                 ConsumeRquest consumeRquest = new ConsumeRquest();
                 consumeRquest.setCreateTime(s.getSignedTime());
                 consumeRquest.setOperateTime(DateUtil.currentYYYYMMDDHHmmssWithSymbol(s.getSignedTime()));
@@ -167,9 +171,11 @@ public class ConsumeController extends BaseController {
             String[] vals = getPageNumAndPageSize(request);
             AccountDetail accountDetail = new AccountDetail();
             accountDetail.setUserId(userId);
-            PageInfo<Map> signeds = this.accountDetailService.selectByAccountDetail(accountDetail, Integer.valueOf(vals[0]), Integer.valueOf(vals[1]));
-            if (signeds.getList().size() > 0) {
-                for (Map s : signeds.getList()) {
+            accountDetail.setParamA((Integer.valueOf(vals[0])-1)*Integer.valueOf(vals[1]));
+            accountDetail.setParamB(Integer.valueOf(vals[1]));
+            List<Map> signeds = this.accountDetailService.selectByAccountDetailPage(accountDetail);
+            if (signeds.size() > 0) {
+                for (Map s : signeds) {
                     String str = null;
                     if (s.get("detail_flag").toString().equals("4")) {
                         str = "兑换商品-"+s.get("good_name")+"";
@@ -199,7 +205,7 @@ public class ConsumeController extends BaseController {
             pageNum = Integer.valueOf(request.getCurrentPage());
         }
 
-        Integer pageSize = 60;
+        Integer pageSize = ContantUtil.DEFAULT_PAGE_SIZE;
         if (null != request.getPageSize() && !"0".equals(request.getPageSize())) {
             pageSize = Integer.valueOf(request.getPageSize());
         }

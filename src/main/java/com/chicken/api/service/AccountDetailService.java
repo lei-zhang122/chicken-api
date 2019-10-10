@@ -55,4 +55,9 @@ public class AccountDetailService {
         PageInfo result = new PageInfo(userLists);
         return result;
     }
+
+    public List<Map> selectByAccountDetailPage(AccountDetail accountDetail) {
+        List<Map> userLists = accountDetailDao.selectByAccountDetailPage(accountDetail);
+        return userLists;
+    }
 }

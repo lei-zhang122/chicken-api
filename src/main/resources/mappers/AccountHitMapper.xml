@@ -64,6 +64,21 @@
     <if test="hitUserId != null and hitUserId !=''" >
       AND hit_user_id = #{hitUserId}
     </if>
+    order by id desc
+  </select>
+  <select id="selectByAccountHitPage" resultMap="BaseResultMap" parameterType="com.chicken.api.model.AccountHit" >
+    select id, detail_flag, detail_type, score, score_count, signed_time, remark, status,
+    create_time, user_id,hit_user_id
+    from t_account_hit
+    WHERE 1=1
+    <if test="userId != null and userId !=''" >
+      AND user_id = #{userId}
+    </if>
+    <if test="hitUserId != null and hitUserId !=''" >
+      AND hit_user_id = #{hitUserId}
+    </if>
+    order by id desc
+    limit #{paramA},#{paramB}
   </select>
   <select id="selectHitUserName" resultType="java.util.HashMap" parameterType="com.chicken.api.model.AccountHit" >
     select distinct z.nick_name as hit_nick_name,z.avatar as hit_avatar,z.openid as hit_openid

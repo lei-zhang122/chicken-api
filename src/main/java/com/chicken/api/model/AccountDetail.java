@@ -23,6 +23,10 @@ public class AccountDetail {
 
     private Integer userId;
 
+    private Integer paramA;
+
+    private Integer paramB;
+
     public Integer getId() {
         return id;
     }
@@ -101,5 +105,21 @@ public class AccountDetail {
 
     public void setUserId(Integer userId) {
         this.userId = userId;
+    }
+
+    public Integer getParamA() {
+        return paramA;
+    }
+
+    public void setParamA(Integer paramA) {
+        this.paramA = paramA;
+    }
+
+    public Integer getParamB() {
+        return paramB;
+    }
+
+    public void setParamB(Integer paramB) {
+        this.paramB = paramB;
     }
 }

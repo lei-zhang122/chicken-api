@@ -48,11 +48,8 @@ public class AccountSignedService {
         return accountSignedDao.updateByPrimaryKey(record);
     }
 
-    public PageInfo<AccountSigned> selectByAccountSigned(AccountSigned accountSigned, int pageNum, int pageSize) {
-        //将参数传给这个方法就可以实现物理分页了
-        PageHelper.startPage(pageNum, pageSize);
+    public List<AccountSigned> selectByAccountSigned(AccountSigned accountSigned) {
         List<AccountSigned> userLists = accountSignedDao.selectByAccountSigned(accountSigned);
-        PageInfo result = new PageInfo(userLists);
-        return result;
+        return userLists;
     }
 }
