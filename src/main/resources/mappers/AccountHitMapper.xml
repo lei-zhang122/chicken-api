@@ -81,9 +81,10 @@
     limit #{paramA},#{paramB}
   </select>
   <select id="selectHitUserName" resultType="java.util.HashMap" parameterType="com.chicken.api.model.AccountHit" >
-    select distinct z.nick_name as hit_nick_name,z.avatar as hit_avatar,z.openid as hit_openid
+    select distinct z.nick_name as hit_nick_name,z.avatar as hit_avatar,z.openid as hit_openid,z.id,r.balance
     from t_account_hit t
     left join t_wechat_user z on z.id = t.user_id
+    left join t_account_user r  on r.user_id = z.id
     WHERE 1=1
     <if test="userId != null and userId !=''" >
       AND t.user_id = #{userId}
@@ -91,6 +92,7 @@
     <if test="hitUserId != null and hitUserId !=''" >
       AND t.hit_user_id = #{hitUserId}
     </if>
+    order by t.id desc
   </select>
   <select id="selectTodayHitScore" resultType="java.lang.Long" parameterType="com.chicken.api.model.AccountHit" >
     select sum(score) as zong from t_account_hit t

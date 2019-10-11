@@ -135,7 +135,7 @@ public class UserController extends BaseController {
             hitUserScore = Double.valueOf(getHitUserScore.toString());
         }
         //每天最大分值
-        Object maxScore = redisService.get(ContantUtil.MAX_HIT_USER);
+        Object maxScore = redisService.get(ContantUtil.MAX_HIT_CHICKEN_SOCRE_DAY);
 
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("differentScore", Double.valueOf(maxScore.toString()) - hitUserScore);

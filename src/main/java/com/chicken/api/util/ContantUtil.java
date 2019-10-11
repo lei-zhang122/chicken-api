@@ -27,6 +27,9 @@ public class ContantUtil {
     //每天最多获得积分
     public static String MAX_SOCRE_DAY = "d:max:score:day";
 
+    //每天揍小鸡最多获得积分
+    public static String MAX_HIT_CHICKEN_SOCRE_DAY = "d:max:h:c:s:day";
+
     //用户已经获得积分
     public static String GAIN_SCORE = "gain:score:";
 

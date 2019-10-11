@@ -81,6 +81,9 @@ public class HItChickenController extends BaseController {
         //每天最大分值
         Object maxScore = redisService.get(ContantUtil.MAX_SOCRE_DAY);
 
+        //每天揍小鸡最大分值
+        Object maxHitScore = redisService.get(ContantUtil.MAX_HIT_CHICKEN_SOCRE_DAY);
+
         //当期那时间
         String now = DateUtil.getSpecifiedDay("yyyy-MM-dd", 0);
 
@@ -90,6 +93,16 @@ public class HItChickenController extends BaseController {
         if (null != gainScoreObj) {
             gainScore = Double.valueOf(gainScoreObj.toString());
         }
+
+        //每天揍小鸡最多多少积分
+        Double hitDiffValue = Double.valueOf(maxHitScore.toString()) - gainScore;
+        //不再获得积分
+        if (hitDiffValue <= 0) {
+            Object score = redisService.get(ContantUtil.GAIN_SCORE.concat(now).concat(":").concat(hitChickenRequest.getUserId()));
+            return returnResult(score.toString());
+        }
+
+        //最多获得多少积分
         Double diffValue = Double.valueOf(maxScore.toString()) - gainScore;
 
         //不再获得积分
@@ -106,7 +119,7 @@ public class HItChickenController extends BaseController {
         }
 
         //差值大于得分 插入记录
-        if (diffValue > Double.valueOf(hitChickenRequest.getScore())) {
+        if (hitDiffValue > Double.valueOf(hitChickenRequest.getScore())) {
 
             //更新今日被打用户分值
             redisService.setByTime(ContantUtil.HIT_USER_SCORE_TODAY.concat(now).concat(":").concat(hitChickenRequest.getOpenid()).concat(":").concat(hitChickenRequest.getHitOpenid()), Double.valueOf(hitChickenRequest.getScore()) + hitUserScore, 2, TimeUnit.DAYS);
@@ -119,13 +132,13 @@ public class HItChickenController extends BaseController {
         } else {
 
             //更新今日被打用户分值
-            redisService.setByTime(ContantUtil.HIT_USER_SCORE_TODAY.concat(now).concat(":").concat(hitChickenRequest.getOpenid()).concat(":").concat(hitChickenRequest.getHitOpenid()), diffValue + hitUserScore, 2, TimeUnit.DAYS);
+            redisService.setByTime(ContantUtil.HIT_USER_SCORE_TODAY.concat(now).concat(":").concat(hitChickenRequest.getOpenid()).concat(":").concat(hitChickenRequest.getHitOpenid()), hitDiffValue + hitUserScore, 2, TimeUnit.DAYS);
 
             //更新缓存
-            redisService.set(ContantUtil.GAIN_SCORE.concat(now).concat(":").concat(hitChickenRequest.getUserId()), gainScore + diffValue);
+            redisService.set(ContantUtil.GAIN_SCORE.concat(now).concat(":").concat(hitChickenRequest.getUserId()), gainScore + hitDiffValue);
 
             //插入分值
-            insetDetail(diffValue, hitChickenRequest.getUserId(), hitChickenRequest.getOpenid(), hitChickenRequest.getHitUserId());
+            insetDetail(hitDiffValue, hitChickenRequest.getUserId(), hitChickenRequest.getOpenid(), hitChickenRequest.getHitUserId());
         }
 
 

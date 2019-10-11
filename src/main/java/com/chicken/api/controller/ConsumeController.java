@@ -270,6 +270,8 @@ public class ConsumeController extends BaseController {
                 obj.put("nickName", m.get("hit_nick_name"));
                 obj.put("avatar", m.get("hit_avatar"));
                 obj.put("openid", hitOpenId);
+                obj.put("score",m.get("balance").toString());
+                obj.put("rank",Long.valueOf(redisService.rank(ContantUtil.USER_RANKING_LIST, m.get("id").toString())) + 1);
                 byHitChicken.add(obj);
             }
         }
