@@ -110,7 +110,7 @@ public class UserIndexController extends BaseController {
         if (pageNum == 1) {
             pageNum = 0;
         } else {
-            pageNum = (pageNum - 1) * 9;
+            pageNum = ((pageNum - 1) * 9) + 1;
         }
 
         JSONObject result = new JSONObject();
@@ -174,19 +174,19 @@ public class UserIndexController extends BaseController {
     public Object signedScore() {
         String[] str = new String[7];
         Object oneday = redisService.get("d:oneday");
-        str[0] = oneday+"";
+        str[0] = oneday + "";
         Object twoday = redisService.get("d:twoday");
-        str[1] = twoday+"";
+        str[1] = twoday + "";
         Object threeday = redisService.get("d:threeday");
-        str[2] = threeday+"";
+        str[2] = threeday + "";
         Object fourday = redisService.get("d:fourday");
-        str[3] = fourday+"";
+        str[3] = fourday + "";
         Object fiveday = redisService.get("d:fiveday");
-        str[4] = fiveday+"";
+        str[4] = fiveday + "";
         Object sixday = redisService.get("d:sixday");
-        str[5] = sixday+"";
+        str[5] = sixday + "";
         Object sevenday = redisService.get("d:sevenday");
-        str[6] = sevenday+"";
+        str[6] = sevenday + "";
 
         return CallResult.success(str);
     }

@@ -312,6 +312,8 @@ public class ConsumeController extends BaseController {
                 obj.put("nickName", m.get("invite_nick_name"));
                 obj.put("avatar", m.get("invite_avatar"));
                 obj.put("openid", m.get("invite_openid"));
+                obj.put("score",m.get("balance").toString());
+                obj.put("rank",Long.valueOf(redisService.rank(ContantUtil.USER_RANKING_LIST, m.get("invite_user_id").toString())) + 1);
                 friend.add(obj);
             }
         }
