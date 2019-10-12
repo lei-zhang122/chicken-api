@@ -78,14 +78,37 @@ public class HItChickenController extends BaseController {
             hitChickenRequest.setHitUserId(hitUserId.toString());
         }
         logger.info("被揍用户id{},打人用户id{}", hitChickenRequest.getHitUserId(), hitChickenRequest.getUserId());
+
+        //当期那时间
+        String now = DateUtil.getSpecifiedDay("yyyy-MM-dd", 0);
+
+        //获取打某一个用户最多多少积分
+        Object hitUserMaxScore = redisService.get(ContantUtil.MAX_HIT_USER);
+        if (Double.valueOf(hitUserMaxScore.toString()) < Double.valueOf(hitChickenRequest.getScore())) {
+            hitChickenRequest.setScore(hitUserMaxScore.toString());
+        }
+
+        //今日被打用户已经打了分值
+        Object getHitUserScore = redisService.get(ContantUtil.HIT_USER_SCORE_TODAY.concat(now).concat(":").concat(hitChickenRequest.getOpenid()).concat(":").concat(hitChickenRequest.getHitOpenid()));
+        Double hitUserScore = 0.0;
+        if (null != getHitUserScore) {
+            hitUserScore = Double.valueOf(getHitUserScore.toString());
+        }
+
+        //判断打一个用户得分是否大于阈值
+        if (hitUserScore >= Double.valueOf(hitUserMaxScore.toString())) {
+            Object score = redisService.get(ContantUtil.GAIN_SCORE.concat(now).concat(":").concat(hitChickenRequest.getUserId()));
+            return returnResult(score.toString());
+        } else {
+            hitChickenRequest.setScore((Double.valueOf(hitUserMaxScore.toString()) - hitUserScore) + "");
+        }
+
+
         //每天最大分值
         Object maxScore = redisService.get(ContantUtil.MAX_SOCRE_DAY);
 
         //每天揍小鸡最大分值
         Object maxHitScore = redisService.get(ContantUtil.MAX_HIT_CHICKEN_SOCRE_DAY);
-
-        //当期那时间
-        String now = DateUtil.getSpecifiedDay("yyyy-MM-dd", 0);
 
         //已经获得的积分
         Object gainScoreObj = redisService.get(ContantUtil.GAIN_SCORE.concat(now).concat(":").concat(hitChickenRequest.getUserId()));
@@ -109,13 +132,6 @@ public class HItChickenController extends BaseController {
         if (diffValue <= 0) {
             Object score = redisService.get(ContantUtil.GAIN_SCORE.concat(now).concat(":").concat(hitChickenRequest.getUserId()));
             return returnResult(score.toString());
-        }
-
-        //今日被打用户已经打了分值
-        Object getHitUserScore = redisService.get(ContantUtil.HIT_USER_SCORE_TODAY.concat(now).concat(":").concat(hitChickenRequest.getOpenid()).concat(":").concat(hitChickenRequest.getHitOpenid()));
-        Double hitUserScore = 0.0;
-        if (null != getHitUserScore) {
-            hitUserScore = Double.valueOf(getHitUserScore.toString());
         }
 
         //差值大于得分 插入记录
