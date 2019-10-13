@@ -260,6 +260,9 @@ public class LoginController extends BaseController {
         //修改排行榜分值
         redisService.incrScore(ContantUtil.USER_RANKING_LIST, accountUser.getUserId().toString(), score);
 
+        //修改自己排行榜的分
+        redisService.incrScore(ContantUtil.FRIEND_RANKING_LIST.concat(openid), accountUser.getUserId().toString(), Double.valueOf(score));
+
         //更新自己所在排行榜分值
         Object myFriend = redisService.get(ContantUtil.USER_OWNER_SET.concat(openid));
         if (null != myFriend) {
