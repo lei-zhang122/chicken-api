@@ -99,8 +99,6 @@ public class HItChickenController extends BaseController {
         if (hitUserScore >= Double.valueOf(hitUserMaxScore.toString())) {
             Object score = redisService.get(ContantUtil.GAIN_SCORE.concat(now).concat(":").concat(hitChickenRequest.getUserId()));
             return returnResult(score.toString());
-        } else {
-            hitChickenRequest.setScore((Double.valueOf(hitUserMaxScore.toString()) - hitUserScore) + "");
         }
 
 
