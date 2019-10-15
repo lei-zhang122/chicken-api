@@ -99,6 +99,13 @@ public class HItChickenController extends BaseController {
         if (hitUserScore >= Double.valueOf(hitUserMaxScore.toString())) {
             Object score = redisService.get(ContantUtil.GAIN_SCORE.concat(now).concat(":").concat(hitChickenRequest.getUserId()));
             return returnResult(score.toString());
+        } else {
+            //获得剩余还可以打多少分
+            Double d = Double.valueOf(hitUserMaxScore.toString()) - hitUserScore;
+            //如果剩余分数小于揍的分值
+            if (d < Double.valueOf(hitChickenRequest.getScore())) {
+                hitChickenRequest.setScore(d.toString());
+            }
         }
 
 
