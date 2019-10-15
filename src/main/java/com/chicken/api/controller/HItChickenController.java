@@ -183,7 +183,7 @@ public class HItChickenController extends BaseController {
         accountUser.setAttentCount(accountUser.getAttentCount() + Double.valueOf(score));
         accountUser.setBalance(accountUser.getBalance() + Double.valueOf(score));
         accountUserService.updateByPrimaryKey(accountUser);
-        logger.info("用户揍小鸡，用户id{}，用户打卡得分{}", userId, score);
+        logger.info("用户揍小鸡，用户id{}，用户打人得分{}", userId, score);
 
         //修改排行榜分值
         redisService.incrScore(ContantUtil.USER_RANKING_LIST, accountUser.getUserId().toString(), score);
